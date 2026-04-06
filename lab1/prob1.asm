@@ -1,8 +1,3 @@
-# Demo Program
-# 
-#   CPE 315
-
-
 # declare global so programmer can see actual addresses.
 .globl welcome
 .globl prompt
