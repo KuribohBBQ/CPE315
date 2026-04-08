@@ -1,3 +1,8 @@
+# Name: Ryan Vu, Euclid Peregrin
+# Section: 
+# Description:
+
+
 # declare global so programmer can see actual addresses.
 .globl welcome
 .globl prompt
