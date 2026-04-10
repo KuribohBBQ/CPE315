@@ -51,14 +51,12 @@ main:
 	syscall
 	add		  $t1, $0, $v0
 
-  # Store 1 into $t2
+  # Power of 1 case
   addi    $t2, $0, 1
-  # beq     $t1, $t2, done
+  add     $t3, $t0, $0
+  beq     $t1, $t2, done
   
-  
-  # power_one:
-    
-
+  add     $t3, $0, $0
   add     $t3, $t3, $t0
   add     $t4, $t4, $0
 
