@@ -3,6 +3,17 @@
 # Description:
 #   CPE 315
 
+#Java 
+#int high = scanner.nextInt();
+#int low = scanner.nextInt();
+#long value = ((long) high << 32) | (low & 0xFFFFFFFFL); //combine high and low into 64 bit value
+#long result = value / divisor;
+#int newHigh = (int) (result >> 32); //extract new high and low
+#int newLow  = (int) result;
+#System.out.println(newHigh + "," + newLow);
+
+
+
 
 # declare global so programmer can see actual addresses.
 .globl welcome
