@@ -1,16 +1,27 @@
 # Name: Ryan Vu, Euclid Peregrin
 # Section:
-# Description:
+# Description: Divides a 64-bit unsigned number by a 31-bit number that is always a power of two. First takes in a high input, then a low input, then finally
+# the divisor. Divisor is shifted to the right. LSB of high is extracted, then high and low are shifted to the right, then the extracted bit is OR with the MSB of low. This repeats until
+# divisor reaches 0.
 #   CPE 315
 
 #Java 
-#int high = scanner.nextInt();
-#int low = scanner.nextInt();
-#long value = ((long) high << 32) | (low & 0xFFFFFFFFL); //combine high and low into 64 bit value
-#long result = value / divisor;
-#int newHigh = (int) (result >> 32); //extract new high and low
-#int newLow  = (int) result;
-#System.out.println(newHigh + "," + newLow);
+# int high = scanner.nextInt();
+# int low = scanner.nextInt();
+# int divisor = scanner.nextInt();
+#
+# while (true) {
+#     divisor = divisor >>> 1;
+#     if (divisor == 0) break;
+#
+#     int bit = high & 1;
+#     high = high >>> 1;
+#     low = low >>> 1;
+#     bit = bit << 31;
+#     low = low | bit;
+# }
+#
+# System.out.println(high + "," + low);
 
 
 
