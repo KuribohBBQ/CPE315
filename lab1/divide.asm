@@ -2,8 +2,8 @@
 # Section: 1
 
 # Description: Divides a 64-bit unsigned number by a 31-bit number that is always a power of two. First takes in a high input, then a low input, then finally
-# the divisor. Divisor is shifted to the right. LSB of high is extracted, then high and low are shifted to the right, then the extracted bit is OR with the MSB of low. This repeats until
-# divisor reaches 0.
+# the divisor. Division is done by right shifting. And since divisor is a power of two, shifting will loop
+# until divisor becomes 0
 #   CPE 315
 
 #Java 
