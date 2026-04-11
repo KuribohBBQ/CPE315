@@ -2,7 +2,8 @@
 # Section: 1
 # Description: This program accepts a base x and exponent y. It performs exponentation by using
 # repeated addition. The base is added to itself base number of times. Each subsequent iteration, 
-# up to exponent number of times, occurs with the resulting sum of the additions. 
+# up to exponent number of times, occurs with the resulting sum of the additions. Register t3 stores 
+# the end result and t4 stores the result of each iteration. 
 
 # ---------- Java ----------
 # public class Exponent {
