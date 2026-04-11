@@ -2,6 +2,15 @@
 # Section: 
 # Description: 
 
+#Java
+#int num = scanner.nextInt();
+#int reverse = 0;
+#for (int i = 0; i < 32; i++) {
+	#reverse <<= 1;          //make room for next bit
+    #reverse |= (num & 1);   //copy LSB of num
+    #num >>= 1;            //shift num right
+#return reverse
+
 
 # declare global so programmer can see actual addresses.
 .globl welcome
