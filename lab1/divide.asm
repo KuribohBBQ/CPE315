@@ -1,7 +1,30 @@
 # Name: Ryan Vu, Euclid Peregrin
-# Section:
-# Description:
+# Section: 1
+
+# Description: Divides a 64-bit unsigned number by a 31-bit number that is always a power of two. First takes in a high input, then a low input, then finally
+# the divisor. Division is done by right shifting. And since divisor is a power of two, shifting will loop
+# until divisor becomes 0
 #   CPE 315
+
+#Java 
+# int high = scanner.nextInt();
+# int low = scanner.nextInt();
+# int divisor = scanner.nextInt();
+#
+# while (true) {
+#     divisor = divisor >>> 1;
+#     if (divisor == 0) break;
+#
+#     int bit = high & 1;
+#     high = high >>> 1;
+#     low = low >>> 1;
+#     bit = bit << 31;
+#     low = low | bit;
+# }
+#
+# System.out.println(high + "," + low);
+
+
 
 
 # declare global so programmer can see actual addresses.

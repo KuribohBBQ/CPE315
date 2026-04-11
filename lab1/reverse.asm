@@ -1,6 +1,17 @@
 # Name: Ryan Vu, Euclid Peregrin
-# Section: 
-# Description: 
+# Section: 1
+# Description: This program reverse orders a binary number. First it extracts the LSB of the number and stored in t3, then it shifts the input to the left by 1 and
+# stored in register t4. Registers t4 and t3 are OR and stored back in t4. Then input in t3 is shifted right. Repeat until counter reaches 0.
+
+#Java
+# int num = scanner.nextInt();
+# int reverse = 0;
+# for (int i = 0; i < 32; i++) {
+#     reverse <<= 1;
+#     reverse |= (num & 1);
+#     num >>>= 1;
+# }
+# System.out.println(reverse);
 
 
 # declare global so programmer can see actual addresses.
