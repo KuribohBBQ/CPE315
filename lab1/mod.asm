@@ -1,6 +1,8 @@
 # Name: Ryan Vu, Euclid Peregrin
-# Section: 
-# Description:
+# Section: 1
+# Description: This program performs the modulo operation given a divisor of power of 2. It uses a bitmask by 
+# subtracting 1 to the divisor, making all bits to the right a 1. A logical AND is used to keep the 
+# lower bits representing the remainder.
 
 # ---------- Java ----------
 # public class Mod {

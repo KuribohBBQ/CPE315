@@ -1,6 +1,8 @@
 # Name: Ryan Vu, Euclid Peregrin
-# Section: 
-# Description: 
+# Section: 1
+# Description: This program accepts a base x and exponent y. It performs exponentation by using
+# repeated addition. The base is added to itself base number of times. Each subsequent iteration, 
+# up to exponent number of times, occurs with the resulting sum of the additions. 
 
 # ---------- Java ----------
 # public class Exponent {
