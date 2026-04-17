@@ -21,17 +21,13 @@ public class Assembler {
                 //trim leading and trailing whitespace
                 line = line.trim();
                 //process each character
-                for (int i = 0; i < line.length(); i++) {
-                    char ch = line.charAt(i);
-                    //skip # since it is a comment
-                    if (ch == '#') {
-                        break;
-                    }
-                    System.out.print(ch);
+                // Comment present in the line
+                if (line.indexOf("#") != -1) {
+                    line = line.substring(0, line.indexOf("#"));
                 }
 
-                //move to next line after printing
-                System.out.println();
+                // Move to next line after printing
+                System.out.println(line);
             }
 
         } catch (IOException e) {
