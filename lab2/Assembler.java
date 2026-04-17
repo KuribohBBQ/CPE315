@@ -18,12 +18,15 @@ public class Assembler {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                //trim leading and trailing whitespace
-                line = line.trim();
-                //process each character
                 // Comment present in the line
                 if (line.indexOf("#") != -1) {
                     line = line.substring(0, line.indexOf("#"));
+                }
+
+                // trim leading and trailing whitespace
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
                 }
 
                 // Move to next line after printing
