@@ -1,10 +1,18 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
-public class trim_and_read {
+
+public class Assembler {
+    public LabelMap doFirstPass(List<String> lines) {
+        LabelMap labelMap = new LabelMap();
+    
+        return labelMap;
+    }
+
     public static void main(String[] args) {
-        String fpath = "example.asm";
+        String fpath = "test2.asm";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fpath))) {
             String line;
