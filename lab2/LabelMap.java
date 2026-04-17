@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class LabelMap {
@@ -16,5 +17,9 @@ public class LabelMap {
       throw new NoSuchElementException("Label " + label + "doesn't exist");
     }
     return labelMap.get(label);
+  }
+
+  public void printLabels() {
+    labelMap.forEach((label, addr) -> System.out.println(label + ": " + addr));
   }
 }
