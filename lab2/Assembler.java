@@ -5,6 +5,10 @@ public class Assembler {
     public static LabelMap doFirstPass(String fname) {
     // public static void doFirstPass(String fname) {
         int curAddr = 0;
+
+        //array to hold instruction
+        Instruction[] instructionArray = {};
+
         LabelMap labelMap = new LabelMap();
         try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
             String line;
