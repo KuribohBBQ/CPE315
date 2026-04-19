@@ -4,13 +4,13 @@ public class Instruction
     private String name;
 
     //Opcode and funct will be in hex 0x
-    private int Opcode;
+    private int opcode;
     private int funct;
 
-    public Instruction(String name, int Opcode, int funct)
+    public Instruction(String name, int opcode, int funct)
     {
         this.name = name;
-        this.Opcode = Opcode;
+        this.opcode = opcode;
         this.funct = funct;
     }
 
@@ -22,7 +22,7 @@ public class Instruction
 
     public int getOpcode()
     {
-        return Opcode;
+        return opcode;
     }
 
     public int getFunct()
