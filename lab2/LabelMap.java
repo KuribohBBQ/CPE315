@@ -1,5 +1,4 @@
 import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class LabelMap {
@@ -20,6 +19,6 @@ public class LabelMap {
   }
 
   public void printLabels() {
-    labelMap.forEach((label, addr) -> System.out.println(label + ": " + addr));
+    labelMap.forEach((label, addr) -> System.out.println(label + " at address " + addr));
   }
 }

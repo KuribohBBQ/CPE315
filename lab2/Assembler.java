@@ -1,19 +1,22 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 public class Assembler {
-    public static LabelMap doFirstPass(String fname) {
-    // public static void doFirstPass(String fname) {
+    public static void doFirstPass(String fname) {
         int curAddr = 0;
 
         //array to hold instruction
-        Instruction[] instructionArray = {};
+        List<Instruction> instrList = new ArrayList<>();
 
         LabelMap labelMap = new LabelMap();
         try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
             String line;
 
             while ((line = reader.readLine()) != null) {
+                String label = "";
                 // Comment present in the line
                 if (line.indexOf("#") != -1) {
                     line = line.substring(0, line.indexOf("#"));
@@ -31,31 +34,39 @@ public class Assembler {
                     // 2. Label followed by instruction
                 if (line.indexOf(":") != -1) {
                     String[] splitLine = line.split(":", 2);
-                    String label = splitLine[0].trim();
-                    splitLine[1] = splitLine[1].trim();
+                    label = splitLine[0].trim();
+                    line = splitLine[1].trim();
 
                     labelMap.addLabel(label, curAddr);
                     
-                    if (splitLine[1].isEmpty()) {
+                    if (line.isEmpty()) {
                         continue;
                     }
-                }
 
+                }
                 // Instruction exists
+                line = line.replace(",", " "); // replace all commas with a whitespace
+                String[] instrTokens = line.split("\\s+");
+                String instrName = instrTokens[0];
+                String[] operands = Arrays.copyOfRange(instrTokens, 1, instrTokens.length);
+                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, label, curAddr);
+                instrList.add(instr);
+                
                 curAddr += 4;
+            }
+            for (Instruction instr : instrList) {
+                instr.printInstr();
             }
             // labelMap.printLabels();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return labelMap;
     }
 
     public static void main(String[] args) {
         // String fname = "test2.asm";
         String fname = "test3.asm";
         // String fname = "temp.asm";
-        LabelMap labelMap = doFirstPass(fname);
-        labelMap.printLabels();
+        doFirstPass(fname);
     }
 }
