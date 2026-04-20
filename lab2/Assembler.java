@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 public class Assembler {
     public static void doFirstPass(String fname) {
-        int curAddr = 0;
+        int pc = 0;
 
         //array to hold instruction
         List<Instruction> instrList = new ArrayList<>();
@@ -37,7 +37,7 @@ public class Assembler {
                     label = splitLine[0].trim();
                     line = splitLine[1].trim();
 
-                    labelMap.addLabel(label, curAddr);
+                    labelMap.addLabel(label, pc);
                     
                     if (line.isEmpty()) {
                         continue;
@@ -49,10 +49,10 @@ public class Assembler {
                 String[] instrTokens = line.split("\\s+");
                 String instrName = instrTokens[0];
                 String[] operands = Arrays.copyOfRange(instrTokens, 1, instrTokens.length);
-                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, label, curAddr);
+                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, label, pc);
                 instrList.add(instr);
                 
-                curAddr += 4;
+                pc += 1;
             }
             for (Instruction instr : instrList) {
                 instr.printInstr();
