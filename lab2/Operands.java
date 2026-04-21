@@ -7,6 +7,7 @@ public class Operands {
     private int shamt = 0;
     private int immediate = 0;
     private int target = 0;
+    private String label = "";
 
     //getter functions
     public int getRs()
@@ -37,6 +38,11 @@ public class Operands {
     public int getTarget()
     {
         return target;
+    }
+
+    public String getLabel()
+    {
+        return label;
     }
 
 
@@ -71,6 +77,11 @@ public class Operands {
         this.target = target;
     }
 
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+
     public void printOperands() {
         System.out.println("=== Operands Fields ===");
         System.out.println("\trs: " + this.rs);
@@ -79,5 +90,6 @@ public class Operands {
         System.out.println("\tshamt: " + this.shamt);
         System.out.println("\timmediate: " + this.immediate);
         System.out.println("\ttarget: " + this.target);
+        System.out.println("\tlabel: " + this.label);
     }
 }

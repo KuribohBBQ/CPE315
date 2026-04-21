@@ -49,6 +49,7 @@ public class ProcessOperands {
             case "beq":
                 ops.setRs(registerNum(operands[0]));
                 ops.setRt(registerNum(operands[1]));
+                ops.setLabel(operands[2]);
                 labelAddr = labelMap.getAddr(operands[2]);
                 offset = labelAddr - (addr + 1);
                 ops.setImmediate(offset);
@@ -56,6 +57,7 @@ public class ProcessOperands {
             case "bne":
                 ops.setRs(registerNum(operands[0]));
                 ops.setRt(registerNum(operands[1]));
+                ops.setLabel(operands[2]);
                 labelAddr = labelMap.getAddr(operands[2]);
                 offset = labelAddr - (addr + 1);
                 ops.setImmediate(offset);
@@ -76,16 +78,13 @@ public class ProcessOperands {
                 break;
 
             case "j":
+                ops.setLabel(operands[0]);
                 break;
             case "jr":
                 ops.setRs(registerNum(operands[0]));
                 break;
             case "jal":
-                //get address of label that is in label map
-                int targetAddr = labelMap.getAddr(operands[0]);
-
-                //jump instruction so we set target
-                ops.setTarget(targetAddr);
+                ops.setLabel(operands[0]);
                 break;
 
             default:

@@ -6,6 +6,8 @@ public class Instruction
     //Opcode and funct will be in hex 0x
     private int opcode;
     private int funct;
+
+    private String label;
     
     private Operands operands;
 
@@ -53,7 +55,6 @@ public class Instruction
         System.out.println("\t\topcode: " + this.opcode);
         System.out.println("\t\tfunct: " + this.funct);
         this.operands.printOperands();
-        // System.out.println("\toperands: " + Arrays.toString(this.operands));
         System.out.println("\t\taddr: " + this.addr);
         System.out.println();
     }
