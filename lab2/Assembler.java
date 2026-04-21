@@ -54,18 +54,37 @@ public class Assembler {
                 
                 pc += 1;
             }
-            for (Instruction instr : instrList) {
-                instr.printInstr();
-            }
-            // labelMap.printLabels();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Pass 2
+        /*
+        for (Instruction instr : instrList) {
+            instr.printInstr();
+
+            // assemble R-type instructions
+            if (instr.getType() == 'r') { 
+            
+            }
+            // assemble I-type instructions
+            else if (instr.getType() == 'i') {
+
+            }
+            // assemble J-type instructions
+            else if (instr.getType() == 'j') {
+                
+            }
+            else {
+                throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
+            }
+        }
+        */
     }
 
     public static void main(String[] args) {
-        // String fname = "test2.asm";
-        String fname = "test3.asm";
+        String fname = "test2.asm";
+        // String fname = "test3.asm";
         // String fname = "temp.asm";
         assemble(fname);
     }
