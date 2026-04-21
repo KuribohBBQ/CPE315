@@ -1,14 +1,33 @@
 public class ProcessOperands {
 
-    public static Operand processOperands(
+    public static Operands processOperands(
             String name, String[] operands, int addr, LabelMap labelMap) {
 
-        Operand ops = new Operand();
+        Operands ops = new Operands();
+        int labelAddr;
+        int offset;
 
         switch (name) {
             case "add":
+                ops.setRd(registerNum(operands[0]));
+                ops.setRs(registerNum(operands[1]));
+                ops.setRt(registerNum(operands[2]));
+                break;
             case "and":
+                ops.setRd(registerNum(operands[0]));
+                ops.setRs(registerNum(operands[1]));
+                ops.setRt(registerNum(operands[2]));
+                break;
+            case "sub":
+                ops.setRd(registerNum(operands[0]));
+                ops.setRs(registerNum(operands[1]));
+                ops.setRt(registerNum(operands[2]));
+                break;
             case "or":
+                ops.setRd(registerNum(operands[0]));
+                ops.setRs(registerNum(operands[1]));
+                ops.setRt(registerNum(operands[2]));
+                break;
             case "slt":
                 ops.setRd(registerNum(operands[0]));
                 ops.setRs(registerNum(operands[1]));
@@ -21,10 +40,6 @@ public class ProcessOperands {
                 ops.setShamt(Integer.parseInt(operands[2]));
                 break;
 
-            case "jr":
-                ops.setRs(registerNum(operands[0]));
-                break;
-
             case "addi":
                 ops.setRt(registerNum(operands[0]));
                 ops.setRs(registerNum(operands[1]));
@@ -32,15 +47,22 @@ public class ProcessOperands {
                 break;
 
             case "beq":
+                ops.setRs(registerNum(operands[0]));
+                ops.setRt(registerNum(operands[1]));
+                labelAddr = labelMap.getAddr(operands[2]);
+                offset = labelAddr - (addr + 1);
+                ops.setImmediate(offset);
+                break;
             case "bne":
                 ops.setRs(registerNum(operands[0]));
                 ops.setRt(registerNum(operands[1]));
-                int labelAddr = labelMap.getAddr(operands[2]);
-                int offset = labelAddr - (addr + 1);
+                labelAddr = labelMap.getAddr(operands[2]);
+                offset = labelAddr - (addr + 1);
                 ops.setImmediate(offset);
                 break;
 
             case "lw":
+                break;
             case "sw":
                 ops.setRt(registerNum(operands[0]));
                 //extract value from between parenthesis
@@ -54,6 +76,10 @@ public class ProcessOperands {
                 break;
 
             case "j":
+                break;
+            case "jr":
+                ops.setRs(registerNum(operands[0]));
+                break;
             case "jal":
                 //get address of label that is in label map
                 int targetAddr = labelMap.getAddr(operands[0]);
@@ -74,10 +100,18 @@ public class ProcessOperands {
             case "$zero":
             case "$0":
                 return 0;
+            case "$v0":
+                return 2;
+            case "$v1":
+                return 3;
             case "$a0":
                 return 4;
             case "$a1":
                 return 5;
+            case "$a2":
+                return 6;
+            case "$a3":
+                return 7;
             case "$t0":
                 return 8;
             case "$t1":
@@ -88,6 +122,10 @@ public class ProcessOperands {
                 return 11;
             case "$s0":
                 return 16;
+            case "$s1":
+                return 17;
+            case "$s2":
+                return 18;
             case "$ra":
                 return 31;
             default:
