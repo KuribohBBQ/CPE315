@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Instruction
 {
     //constructor for instriction
@@ -9,21 +7,17 @@ public class Instruction
     private int opcode;
     private int funct;
     
-    private String[] operands;
-
-    // Label the instruction belongs to
-    private String label;
+    private Operands operands;
 
     private int addr;
 
 
-    public Instruction(String name, int opcode, int funct, String[] operands, String label, int addr)
+    public Instruction(String name, int opcode, int funct, Operands operands, String label, int addr)
     {
         this.name = name;
         this.opcode = opcode;
         this.funct = funct;
         this.operands = operands;
-        this.label = label;
         this.addr = addr;
     }
 
@@ -43,14 +37,9 @@ public class Instruction
         return funct;
     }
 
-    public String[] getOperands()
+    public Operands getOperands()
     {
         return operands;
-    }
-
-    public String getLabel()
-    {
-        return label;
     }
 
     public int getAddr()
@@ -59,12 +48,13 @@ public class Instruction
     }
 
     public void printInstr() {
-        System.out.println("name: " + this.name);
-        System.out.println("opcode: " + this.opcode);
-        System.out.println("funct: " + this.funct);
-        System.out.println("operands: " + Arrays.toString(this.operands));
-        System.out.println("label: " + this.label);
-        System.out.println("addr: " + this.addr);
+        System.out.println("===== Instruction Fields =====");
+        System.out.println("\t\tname: " + this.name);
+        System.out.println("\t\topcode: " + this.opcode);
+        System.out.println("\t\tfunct: " + this.funct);
+        this.operands.printOperands();
+        // System.out.println("\toperands: " + Arrays.toString(this.operands));
+        System.out.println("\t\taddr: " + this.addr);
         System.out.println();
     }
 }
