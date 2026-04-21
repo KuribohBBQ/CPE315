@@ -4,8 +4,6 @@ public class ProcessOperands {
             String name, String[] operands, int addr, LabelMap labelMap) {
 
         Operands ops = new Operands();
-        int labelAddr;
-        int offset;
 
         switch (name) {
             case "add":
