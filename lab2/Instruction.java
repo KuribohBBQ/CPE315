@@ -50,6 +50,11 @@ public class Instruction
         return addr;
     }
 
+    public char getType()
+    {
+        return type;
+    }
+
     public void printInstr() {
         System.out.println("===== Instruction Fields =====");
         System.out.println("\t\tname: " + this.name);
