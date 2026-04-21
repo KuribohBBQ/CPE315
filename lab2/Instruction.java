@@ -12,7 +12,7 @@ public class Instruction
     private int addr;
 
 
-    public Instruction(String name, int opcode, int funct, Operands operands, String label, int addr)
+    public Instruction(String name, int opcode, int funct, Operands operands, int addr)
     {
         this.name = name;
         this.opcode = opcode;

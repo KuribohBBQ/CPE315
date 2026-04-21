@@ -1,7 +1,7 @@
 //process instruction
 public class ProcessInstruction
 {
-    public static Instruction processInstruction(String name, String[] operands, String label, int addr)
+    public static Instruction processInstruction(String name, Operands operands, int addr)
     {
         int opcode;
         //default funct value since not all instructions use funct
@@ -63,6 +63,6 @@ public class ProcessInstruction
                 throw new IllegalArgumentException("Unknown instruction: " + name);
         }
 
-        return new Instruction(name, opcode, funct, operands, label, addr);
+        return new Instruction(name, opcode, funct, operands, addr);
     }
 }
