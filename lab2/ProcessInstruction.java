@@ -21,6 +21,10 @@ public class ProcessInstruction
                 opcode = 0x00;
                 funct = 0x20;
                 break;
+            case "sub":
+                opcode = 0x00;
+                funct = 0x22;
+                break;
             case "slt":
                 opcode = 0x00;
                 funct = 0x2A;
