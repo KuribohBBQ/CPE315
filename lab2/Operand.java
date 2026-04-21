@@ -1,4 +1,4 @@
-public class Operands {
+public class Operand {
 
 
     private int rs = 0;
