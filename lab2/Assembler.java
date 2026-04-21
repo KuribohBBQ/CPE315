@@ -48,8 +48,8 @@ public class Assembler {
                 line = line.replace(",", " "); // replace all commas with a whitespace
                 String[] instrTokens = line.split("\\s+");
                 String instrName = instrTokens[0];
-                String[] operands = Arrays.copyOfRange(instrTokens, 1, instrTokens.length);
-                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, label, pc);
+                Operands operands = ProcessOperands.processOperands(instrName, Arrays.copyOfRange(instrTokens, 1, instrTokens.length), pc, labelMap);
+                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, pc);
                 instrList.add(instr);
                 
                 pc += 1;
