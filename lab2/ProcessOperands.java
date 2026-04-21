@@ -89,6 +89,7 @@ public class ProcessOperands {
     public static int registerNum(String register) {
         switch (register) {
             case "$zero":
+                return 0;
             case "$0":
                 return 0;
             case "$v0":
