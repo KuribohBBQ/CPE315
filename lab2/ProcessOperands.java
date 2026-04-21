@@ -50,17 +50,11 @@ public class ProcessOperands {
                 ops.setRs(registerNum(operands[0]));
                 ops.setRt(registerNum(operands[1]));
                 ops.setLabel(operands[2]);
-                labelAddr = labelMap.getAddr(operands[2]);
-                offset = labelAddr - (addr + 1);
-                ops.setImmediate(offset);
                 break;
             case "bne":
                 ops.setRs(registerNum(operands[0]));
                 ops.setRt(registerNum(operands[1]));
                 ops.setLabel(operands[2]);
-                labelAddr = labelMap.getAddr(operands[2]);
-                offset = labelAddr - (addr + 1);
-                ops.setImmediate(offset);
                 break;
 
             case "lw":
@@ -119,12 +113,36 @@ public class ProcessOperands {
                 return 10;
             case "$t3":
                 return 11;
+            case "$t4":
+                return 12;
+            case "$t5":
+                return 13;
+            case "$t6":
+                return 14;
+            case "$t7":
+                return 15;
             case "$s0":
                 return 16;
             case "$s1":
                 return 17;
             case "$s2":
                 return 18;
+            case "$s3":
+                return 19;
+            case "$s4":
+                return 20;
+            case "$s5":
+                return 21;
+            case "$s6":
+                return 22;
+            case "$s7":
+                return 23;
+            case "$t8":
+                return 24;
+            case "$t9":
+                return 25;
+            case "$sp":
+                return 29;
             case "$ra":
                 return 31;
             default:
