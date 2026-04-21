@@ -1,4 +1,4 @@
-public class Operand {
+public class Operands {
 
 
     private int rs = 0;
@@ -69,5 +69,15 @@ public class Operand {
     public void setTarget(int target)
     {
         this.target = target;
+    }
+
+    public void printOperands() {
+        System.out.println("=== Operands Fields ===");
+        System.out.println("\trs: " + this.rs);
+        System.out.println("\trt: " + this.rt);
+        System.out.println("\trd: " + this.rd);
+        System.out.println("\tshamt: " + this.shamt);
+        System.out.println("\timmediate: " + this.immediate);
+        System.out.println("\ttarget: " + this.target);
     }
 }
