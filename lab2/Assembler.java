@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 public class Assembler {
-    public static void doFirstPass(String fname) {
+    public static void assemble(String fname) {
         int pc = 0;
 
         //array to hold instruction
@@ -67,6 +67,6 @@ public class Assembler {
         // String fname = "test2.asm";
         String fname = "test3.asm";
         // String fname = "temp.asm";
-        doFirstPass(fname);
+        assemble(fname);
     }
 }
