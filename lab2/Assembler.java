@@ -12,6 +12,8 @@ public class Assembler {
         List<Instruction> instrList = new ArrayList<>();
 
         LabelMap labelMap = new LabelMap();
+
+        // Pass 1
         try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
             String line;
 
@@ -59,28 +61,44 @@ public class Assembler {
         }
 
         // Pass 2
-        /*
         for (Instruction instr : instrList) {
             instr.printInstr();
 
             // assemble R-type instructions
             if (instr.getType() == 'r') { 
-            
+                int assembledInt = assembleRInst(instr);
+                String assembledBin = String.format("%32s", Integer.toBinaryString(assembledInt)).replace(" ", "0");
+                System.out.println(assembledBin);
             }
-            // assemble I-type instructions
-            else if (instr.getType() == 'i') {
+            // // assemble I-type instructions
+            // else if (instr.getType() == 'i') {
 
-            }
-            // assemble J-type instructions
-            else if (instr.getType() == 'j') {
+            // }
+            // // assemble J-type instructions
+            // else if (instr.getType() == 'j') {
                 
-            }
-            else {
-                throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
-            }
+            // }
+            // else {
+            //     throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
+            // }
         }
-        */
+        
     }
+
+    private static int assembleRInst(Instruction inst) {
+        // Foramt: op (6), rs (5), rt (5), rd (5), shamt (5), funct (6)
+        Operands instOperands = inst.getOperands();
+        return inst.getOpcode() << 26 |
+                instOperands.getRs() << 21 |
+                instOperands.getRt() << 16 |
+                instOperands.getRd() << 11 |
+                instOperands.getShamt() << 6 |
+                inst.getFunct();
+    }
+
+    // public int assembleIInst(Instruction inst) {
+        // Foramt: op (6), rs (5), rt (5), immediate (16 - 5, 5, 6)
+    // }
 
     public static void main(String[] args) {
         String fname = "test2.asm";
