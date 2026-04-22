@@ -3,6 +3,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class lab2 {
     // Constant array used to check if an operation is valid
     private static final String[] SUPPORTED_OPS = {"addi", "add", "and", "sub", "sll", "slt", "beq", "bne", "or", "lw", "sw", "jal", "jr", "j"};
@@ -155,9 +159,15 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-        // String fname = "test2.asm";
-        String fname = "C:\\Users\\rocke\\IdeaProjects\\CPE315\\lab2\\src\\test4.asm";
-        // String fname = "test1.asm";
-        assemble(fname);
+        String fname = args[0];
+        Path filePath = Paths.get(fname);
+
+        if (Files.exists(filePath)) {
+            assemble(args[0]);
+        }
+        else {
+            throw new IllegalArgumentException("No file given or file does not exist");
+        }
+        
     }
 }
