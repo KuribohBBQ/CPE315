@@ -55,7 +55,7 @@ public class Instruction
         return type;
     }
 
-    public void printInstr() {
+    public void printInst() {
         System.out.println("===== Instruction Fields =====");
         System.out.println("\t\tname: " + this.name);
         System.out.println("\t\topcode: " + this.opcode);

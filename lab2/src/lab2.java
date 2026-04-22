@@ -15,7 +15,7 @@ public class lab2 {
         int pc = 0;
 
         //array to hold instruction
-        List<Instruction> instrList = new ArrayList<>();
+        List<Instruction> instList = new ArrayList<>();
 
         LabelMap labelMap = new LabelMap();
 
@@ -25,7 +25,7 @@ public class lab2 {
 
             while ((line = reader.readLine()) != null) {
                 String label = "";
-                String instrName = "";
+                String instName = "";
                 // Comment present in the line
                 if (line.indexOf("#") != -1) {
                     line = line.substring(0, line.indexOf("#"));
@@ -60,30 +60,30 @@ public class lab2 {
                 for (String op : SUPPORTED_OPS) {
                     // Need to check the beginning of the instruction bc there may not be whitespace
                     if (line.startsWith(op)) {
-                        instrName = op;
-                        line = line.substring(instrName.length()); // grab the rest of line --> operands
+                        instName = op;
+                        line = line.substring(instName.length()); // grab the rest of line --> operands
                         line = line.trim();
                         break;
                     }
                 }
 
                 //unknown instruction
-                if (instrName.isEmpty()) {
+                if (instName.isEmpty()) {
                     //extract the instruction name for printing
-                    String badInstr = line.split("\\s+")[0];
+                    String badInst = line.split("\\s+")[0];
 
                     //still add it so pass 2 can stop at the right place
-                    Instruction instr = new Instruction(badInstr, 0, -1, new Operands(), pc, 'u');
-                    instrList.add(instr);
+                    Instruction inst = new Instruction(badInst, 0, -1, new Operands(), pc, 'u');
+                    instList.add(inst);
 
                     pc += 1;
                     continue;
                 }
                 
-                String[] instrTokens = line.split("\\s+");
-                Operands operands = ProcessOperands.processOperands(instrName, instrTokens, pc, labelMap);
-                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, pc);
-                instrList.add(instr);
+                String[] instTokens = line.split("\\s+");
+                Operands operands = ProcessOperands.processOperands(instName, instTokens, pc, labelMap);
+                Instruction inst = ProcessInstruction.processInstruction(instName, operands, pc);
+                instList.add(inst);
                 
                 pc += 1;
             }
@@ -92,29 +92,28 @@ public class lab2 {
         }
 
         // Pass 2
-        for (Instruction instr : instrList) {
+        for (Instruction inst : instList) {
             int assembledInt = -1;
             String assembledBin = "";
-            // instr.printInstr();
 
             // assemble R-type instructions
-            if (instr.getType() == 'r') { 
-                assembledInt = assembleRInst(instr);
+            if (inst.getType() == 'r') { 
+                assembledInt = assembleRInst(inst);
             }
             // assemble I-type instructions
-            else if (instr.getType() == 'i') {
-                assembledInt = assembleIInst(instr, labelMap);
+            else if (inst.getType() == 'i') {
+                assembledInt = assembleIInst(inst, labelMap);
             }
             // assemble J-type instructions
-            else if (instr.getType() == 'j') {
-                assembledInt = assembleJInst(instr, labelMap);
+            else if (inst.getType() == 'j') {
+                assembledInt = assembleJInst(inst, labelMap);
             }
-            else if (instr.getType() == 'u') {
-                System.out.println("invalid instruction: " + instr.getName());
+            else if (inst.getType() == 'u') {
+                System.out.println("invalid instruction: " + inst.getName());
                 break;
             }
             else {
-                throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
+                throw new IllegalArgumentException("Invalid instruction type: " + inst.getType());
             }
 
             assembledBin = String.format("%32s", Integer.toBinaryString(assembledInt)).replace(" ", "0");
