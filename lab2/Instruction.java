@@ -1,6 +1,6 @@
 public class Instruction
 {
-    //constructor for instriction
+    //constructor for instruction
     private String name;
 
     //Opcode and funct will be in hex 0x

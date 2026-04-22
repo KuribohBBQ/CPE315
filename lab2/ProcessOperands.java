@@ -7,25 +7,9 @@ public class ProcessOperands {
 
         switch (name) {
             case "add":
-                ops.setRd(registerNum(operands[0]));
-                ops.setRs(registerNum(operands[1]));
-                ops.setRt(registerNum(operands[2]));
-                break;
             case "and":
-                ops.setRd(registerNum(operands[0]));
-                ops.setRs(registerNum(operands[1]));
-                ops.setRt(registerNum(operands[2]));
-                break;
             case "sub":
-                ops.setRd(registerNum(operands[0]));
-                ops.setRs(registerNum(operands[1]));
-                ops.setRt(registerNum(operands[2]));
-                break;
             case "or":
-                ops.setRd(registerNum(operands[0]));
-                ops.setRs(registerNum(operands[1]));
-                ops.setRt(registerNum(operands[2]));
-                break;
             case "slt":
                 ops.setRd(registerNum(operands[0]));
                 ops.setRs(registerNum(operands[1]));
@@ -45,10 +29,6 @@ public class ProcessOperands {
                 break;
 
             case "beq":
-                ops.setRs(registerNum(operands[0]));
-                ops.setRt(registerNum(operands[1]));
-                ops.setLabel(operands[2]);
-                break;
             case "bne":
                 ops.setRs(registerNum(operands[0]));
                 ops.setRt(registerNum(operands[1]));
@@ -56,7 +36,6 @@ public class ProcessOperands {
                 break;
 
             case "lw":
-                break;
             case "sw":
                 ops.setRt(registerNum(operands[0]));
                 //extract value from between parenthesis
@@ -70,19 +49,19 @@ public class ProcessOperands {
                 break;
 
             case "j":
-                ops.setLabel(operands[0]);
-                break;
-            case "jr":
-                ops.setRs(registerNum(operands[0]));
-                break;
             case "jal":
                 ops.setLabel(operands[0]);
+                break;
+
+            case "jr":
+                ops.setRs(registerNum(operands[0]));
                 break;
 
             default:
                 throw new IllegalArgumentException("Unknown instruction: " + name);
         }
 
+        ops.setTarget(addr);
         return ops;
     }
 

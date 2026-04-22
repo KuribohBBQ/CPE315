@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 public class Assembler {
     // Constant array used to check if an operation is valid
@@ -63,10 +62,6 @@ public class Assembler {
                         break;
                     }
                 }
-
-                if (instrName.isEmpty()) {
-                    throw new IllegalArgumentException("Operation not supported: " + line);
-                }
                 
                 String[] instrTokens = line.split("\\s+");
                 Operands operands = ProcessOperands.processOperands(instrName, instrTokens, pc, labelMap);
@@ -83,22 +78,23 @@ public class Assembler {
         for (Instruction instr : instrList) {
             int assembledInt = -1;
             String assembledBin = "";
+            // instr.printInstr();
 
             // assemble R-type instructions
             if (instr.getType() == 'r') { 
                 assembledInt = assembleRInst(instr);
             }
-            // // assemble I-type instructions
+            // assemble I-type instructions
             else if (instr.getType() == 'i') {
-                assembledInt = assembleIInst(instr);
+                assembledInt = assembleIInst(instr, labelMap);
             }
             // assemble J-type instructions
-            // else if (instr.getType() == 'j') {
-                
-            // }
-            // else {
-            //     throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
-            // }
+            else if (instr.getType() == 'j') {
+                assembledInt = assembleJInst(instr, labelMap);
+            }
+            else {
+                throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
+            }
 
             assembledBin = String.format("%32s", Integer.toBinaryString(assembledInt)).replace(" ", "0");
             System.out.println(assembledBin);
@@ -116,21 +112,35 @@ public class Assembler {
                 inst.getFunct();
     }
 
-    private static int assembleIInst(Instruction inst) {
+    private static int assembleIInst(Instruction inst, LabelMap labelMap) {
         // Format: op (6), rs (5), rt (5), immediate (16 - 5, 5, 6)
         Operands instOperands = inst.getOperands();
+        if (!instOperands.getLabel().isEmpty()) {
+            int labelAddr = labelMap.getAddr(instOperands.getLabel());
+            int offset = labelAddr - (instOperands.getTarget() + 1); // relative offset calculated from pc+1
+            instOperands.setImmediate(offset);
+        }
+
+        int maskedImm = instOperands.getImmediate() & 0xFFFF; // mask the immediate value to 16 bits
+
         return inst.getOpcode() << 26 |
                 instOperands.getRs() << 21 |
                 instOperands.getRt() << 16 |
-                instOperands.getImmediate();
+                maskedImm;
     }
 
-    
+    private static int assembleJInst(Instruction inst, LabelMap labelMap) {
+        // Format: op (6), address (26 - 5, 5, 5, 5, 6)
+        Operands instOperands = inst.getOperands();
+        int labelAddr = labelMap.getAddr(instOperands.getLabel());
+        return inst.getOpcode() << 26 |
+                labelAddr;
+    }
 
     public static void main(String[] args) {
         // String fname = "test2.asm";
-        // String fname = "test3.asm";
-        String fname = "test1.asm";
+        String fname = "test4.asm";
+        // String fname = "test1.asm";
         assemble(fname);
     }
 }
