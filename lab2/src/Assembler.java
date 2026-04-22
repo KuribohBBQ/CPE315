@@ -62,6 +62,19 @@ public class Assembler {
                         break;
                     }
                 }
+
+                //unknown instruction
+                if (instrName.isEmpty()) {
+                    //extract the instruction name for printing
+                    String badInstr = line.split("\\s+")[0];
+
+                    //still add it so pass 2 can stop at the right place
+                    Instruction instr = new Instruction(badInstr, 0, -1, new Operands(), pc, 'u');
+                    instrList.add(instr);
+
+                    pc += 1;
+                    continue;
+                }
                 
                 String[] instrTokens = line.split("\\s+");
                 Operands operands = ProcessOperands.processOperands(instrName, instrTokens, pc, labelMap);
@@ -91,6 +104,10 @@ public class Assembler {
             // assemble J-type instructions
             else if (instr.getType() == 'j') {
                 assembledInt = assembleJInst(instr, labelMap);
+            }
+            else if (instr.getType() == 'u') {
+                System.out.println("invalid instruction: " + instr.getName());
+                break;
             }
             else {
                 throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
@@ -139,7 +156,7 @@ public class Assembler {
 
     public static void main(String[] args) {
         // String fname = "test2.asm";
-        String fname = "test4.asm";
+        String fname = "C:\\Users\\rocke\\IdeaProjects\\CPE315\\lab2\\src\\test4.asm";
         // String fname = "test1.asm";
         assemble(fname);
     }

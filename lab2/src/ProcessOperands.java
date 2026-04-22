@@ -58,7 +58,9 @@ public class ProcessOperands {
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown instruction: " + name);
+                //do nothing. Operand will use default values
+                break;
+//                throw new IllegalArgumentException("Unknown instruction: " + name);
         }
 
         ops.setTarget(addr);

@@ -79,7 +79,10 @@ public class ProcessInstruction
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown instruction: " + name);
+                opcode = 0x00;
+                //u is for UNKNOWN
+                type = 'u';
+//                throw new IllegalArgumentException("Unknown instruction: " + name);
         }
 
         return new Instruction(name, opcode, funct, operands, addr, type);
