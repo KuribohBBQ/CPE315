@@ -48,6 +48,7 @@ class Emulator {
         dumpRegState();
         break;
       case "s":
+        step();
         break;
       case "r":
         break;
@@ -91,6 +92,12 @@ class Emulator {
     }
 
     System.out.print("\n\n");
+  }
+
+  void step() {
+    System.out.println("OL!");
+    Instruction inst = this.instList.get(pc); // Get instruction based on pc
+
   }
 
 
