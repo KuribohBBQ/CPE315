@@ -102,22 +102,31 @@ class Emulator {
     String inst_name = inst.getName();
     //instruction operands
     Operands ops = inst.getOperands();
+
+    int rd = ops.getRd();
+    int rs = ops.getRt();
+    int rt = ops.getRs();
+
+    //get values from registers
+    int rs_value = registers[rs];
+    int rt_value = registers[rt];
     switch (inst_name) {
       case "and":
-        int rd = ops.getRd();
-        int rs = ops.getRt();
-        int rt = ops.getRs();
-
-        //get values from registers
-        int rs_value = registers[rs];
-        int rt_value = registers[rt];
-
         //And rs and rt values
         int and_value = rs_value & rt_value;
-
         //put value into register
         registers[rd] = and_value;
+        //add 1 to PC counter
+        this.pc += 1;
+
+      case "add":
+        int add_values =  rs_value + rt_value;
+        registers[rd] = add_values;
+
     }
+
+
+
   }
 
 
