@@ -98,6 +98,26 @@ class Emulator {
     System.out.println("OL!");
     Instruction inst = this.instList.get(pc); // Get instruction based on pc
 
+    //instruction name
+    String inst_name = inst.getName();
+    //instruction operands
+    Operands ops = inst.getOperands();
+    switch (inst_name) {
+      case "and":
+        int rd = ops.getRd();
+        int rs = ops.getRt();
+        int rt = ops.getRs();
+
+        //get values from registers
+        int rs_value = registers[rs];
+        int rt_value = registers[rt];
+
+        //And rs and rt values
+        int and_value = rs_value & rt_value;
+
+        //put value into register
+        registers[rd] = and_value;
+    }
   }
 
 
