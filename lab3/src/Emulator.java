@@ -5,10 +5,10 @@ class Emulator {
   int pc = 0;
   int[] registers = new int[32];
   int[] dataMem = new int[8192];
-  List<Instruction> instList;
+  ProgramData progData;
 
-  public Emulator(List<Instruction> instList) {
-    this.instList = instList;
+  public Emulator(ProgramData progData) {
+    this.progData = progData;
   }
 
   void executeInteractive() {
@@ -31,15 +31,7 @@ class Emulator {
 
   void processCommand(String command, int pc) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
-
-    // If want to be strict with ensuring all commands are given as seen in lab spec
-    // if (cmdTokens.length > 1 && 
-    //   !(cmdTokens[0].equalsIgnoreCase("s") ||
-    //     cmdTokens[0].equalsIgnoreCase("m"))) {
-    //   System.out.println("Bad command");
-    // }
-
-
+    
     switch (cmdTokens[0]) {
       case "h":
         displayHelp();
@@ -96,18 +88,18 @@ class Emulator {
 
   void step() {
     System.out.println("OL!");
-    Instruction inst = this.instList.get(pc); // Get instruction based on pc
+    List<Instruction> instList = this.progData.getInstList();
+    Instruction inst = instList.get(pc); // Get instruction based on pc
 
-    //instruction name
-    String inst_name = inst.getName();
-    //instruction operands
-    Operands ops = inst.getOperands();
+    String inst_name = inst.getName(); // instruction name
+    
+    Operands ops = inst.getOperands(); // instruction operands
 
     int rd = ops.getRd();
     int rs = ops.getRt();
     int rt = ops.getRs();
 
-    //get values from registers
+    // get values from registers
     int rs_value = registers[rs];
     int rt_value = registers[rt];
     switch (inst_name) {
@@ -118,12 +110,18 @@ class Emulator {
         registers[rd] = and_value;
         //add 1 to PC counter
         this.pc += 1;
-
+        break;
       case "add":
         int add_values =  rs_value + rt_value;
         registers[rd] = add_values;
+        
+        break;
 
+      case "beq":
+        // int labelAddr = labelMap.getAddr(instOperands.getLabel());
+        break;
     }
+
 
 
 

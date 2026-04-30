@@ -12,7 +12,7 @@ public class lab3 {
     // Constant array used to check if an operation is valid
     private static final String[] SUPPORTED_OPS = {"addi", "add", "and", "sub", "sll", "slt", "beq", "bne", "or", "lw", "sw", "jal", "jr", "j"};
 
-    public static List<Instruction> assemble(String fname) {
+    public static ProgramData assemble(String fname) {
         int pc = 0;
 
         //array to hold instruction
@@ -92,48 +92,8 @@ public class lab3 {
             e.printStackTrace();
         }
 
-        return instList;
-
-        // Pass 2
-        // for (Instruction inst : instList) {
-        //     int assembledInt = -1;
-        //     String assembledBin = "";
-
-        //     // assemble R-type instructions
-        //     if (inst.getType() == 'r') { 
-        //         assembledInt = assembleRInst(inst);
-        //     }
-        //     // assemble I-type instructions
-        //     else if (inst.getType() == 'i') {
-        //         assembledInt = assembleIInst(inst, labelMap);
-        //     }
-        //     // assemble J-type instructions
-        //     else if (inst.getType() == 'j') {
-        //         assembledInt = assembleJInst(inst, labelMap);
-        //     }
-        //     else if (inst.getType() == 'u') {
-        //         System.out.println("invalid instruction: " + inst.getName());
-        //         break;
-        //     }
-        //     else {
-        //         throw new IllegalArgumentException("Invalid instruction type: " + inst.getType());
-        //     }
-
-        //     assembledBin = String.format("%32s", Integer.toBinaryString(assembledInt)).replace(" ", "0");
-        //     System.out.println(assembledBin);
-        // }
+        return new ProgramData(instList, labelMap);
     }
-
-    // private static int assembleRInst(Instruction inst) {
-    //     // Format: op (6), rs (5), rt (5), rd (5), shamt (5), funct (6)
-    //     Operands instOperands = inst.getOperands();
-    //     return inst.getOpcode() << 26 |
-    //             instOperands.getRs() << 21 |
-    //             instOperands.getRt() << 16 |
-    //             instOperands.getRd() << 11 |
-    //             instOperands.getShamt() << 6 |
-    //             inst.getFunct();
-    // }
 
     // private static int assembleIInst(Instruction inst, LabelMap labelMap) {
     //     // Format: op (6), rs (5), rt (5), immediate (16 - 5, 5, 6)
@@ -168,14 +128,14 @@ public class lab3 {
         if (Files.exists(filePath)) {
             // Interactive mode
             if (args.length == 1) {
-                instList = assemble(args[0]);
-                Emulator emulator = new Emulator(instList);
+                ProgramData progData = assemble(args[0]);
+                Emulator emulator = new Emulator(progData);
                 emulator.executeInteractive();
             }
             // Provide script
             else if (args.length == 2) {
-                instList = assemble(args[0]);
-                Emulator emulator = new Emulator(instList);
+                ProgramData progData = assemble(args[0]);
+                Emulator emulator = new Emulator(progData);
                 // Run all function here
             }
             else {
