@@ -1,7 +1,6 @@
 public class ProcessOperands {
 
-    public static Operands processOperands(
-            String name, String[] operands, int addr, LabelMap labelMap) {
+    public static Opname, String[] operands, int addr, LabelMap labelMap) {
 
         Operands ops = new Operands();
 
@@ -12,7 +11,9 @@ public class ProcessOperands {
             case "or":
             case "slt":
                 ops.setRd(registerNum(operands[0]));
-                ops.setRs(registerNum(operands[1]));
+                int[] rands;
+                ops.setRs(registerNum(opeerands processOperands(
+            String rands[1]));
                 ops.setRt(registerNum(operands[2]));
                 break;
 

@@ -3,10 +3,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 public class lab2 {
     // Constant array used to check if an operation is valid
     private static final String[] SUPPORTED_OPS = {"addi", "add", "and", "sub", "sll", "slt", "beq", "bne", "or", "lw", "sw", "jal", "jr", "j"};
@@ -15,7 +11,7 @@ public class lab2 {
         int pc = 0;
 
         //array to hold instruction
-        List<Instruction> instList = new ArrayList<>();
+        List<Instruction> instrList = new ArrayList<>();
 
         LabelMap labelMap = new LabelMap();
 
@@ -25,7 +21,7 @@ public class lab2 {
 
             while ((line = reader.readLine()) != null) {
                 String label = "";
-                String instName = "";
+                String instrName = "";
                 // Comment present in the line
                 if (line.indexOf("#") != -1) {
                     line = line.substring(0, line.indexOf("#"));
@@ -60,30 +56,30 @@ public class lab2 {
                 for (String op : SUPPORTED_OPS) {
                     // Need to check the beginning of the instruction bc there may not be whitespace
                     if (line.startsWith(op)) {
-                        instName = op;
-                        line = line.substring(instName.length()); // grab the rest of line --> operands
+                        instrName = op;
+                        line = line.substring(instrName.length()); // grab the rest of line --> operands
                         line = line.trim();
                         break;
                     }
                 }
 
                 //unknown instruction
-                if (instName.isEmpty()) {
+                if (instrName.isEmpty()) {
                     //extract the instruction name for printing
-                    String badInst = line.split("\\s+")[0];
+                    String badInstr = line.split("\\s+")[0];
 
                     //still add it so pass 2 can stop at the right place
-                    Instruction inst = new Instruction(badInst, 0, -1, new Operands(), pc, 'u');
-                    instList.add(inst);
+                    Instruction instr = new Instruction(badInstr, 0, -1, new Operands(), pc, 'u');
+                    instrList.add(instr);
 
                     pc += 1;
                     continue;
                 }
                 
-                String[] instTokens = line.split("\\s+");
-                Operands operands = ProcessOperands.processOperands(instName, instTokens, pc, labelMap);
-                Instruction inst = ProcessInstruction.processInstruction(instName, operands, pc);
-                instList.add(inst);
+                String[] instrTokens = line.split("\\s+");
+                Operands operands = ProcessOperands.processOperands(instrName, instrTokens, pc, labelMap);
+                Instruction instr = ProcessInstruction.processInstruction(instrName, operands, pc);
+                instrList.add(instr);
                 
                 pc += 1;
             }
@@ -92,28 +88,29 @@ public class lab2 {
         }
 
         // Pass 2
-        for (Instruction inst : instList) {
+        for (Instruction instr : instrList) {
             int assembledInt = -1;
             String assembledBin = "";
+            // instr.printInstr();
 
             // assemble R-type instructions
-            if (inst.getType() == 'r') { 
-                assembledInt = assembleRInst(inst);
+            if (instr.getType() == 'r') { 
+                assembledInt = assembleRInst(instr);
             }
             // assemble I-type instructions
-            else if (inst.getType() == 'i') {
-                assembledInt = assembleIInst(inst, labelMap);
+            else if (instr.getType() == 'i') {
+                assembledInt = assembleIInst(instr, labelMap);
             }
             // assemble J-type instructions
-            else if (inst.getType() == 'j') {
-                assembledInt = assembleJInst(inst, labelMap);
+            else if (instr.getType() == 'j') {
+                assembledInt = assembleJInst(instr, labelMap);
             }
-            else if (inst.getType() == 'u') {
-                System.out.println("invalid instruction: " + inst.getName());
+            else if (instr.getType() == 'u') {
+                System.out.println("invalid instruction: " + instr.getName());
                 break;
             }
             else {
-                throw new IllegalArgumentException("Invalid instruction type: " + inst.getType());
+                throw new IllegalArgumentException("Invalid instruction type: " + instr.getType());
             }
 
             assembledBin = String.format("%32s", Integer.toBinaryString(assembledInt)).replace(" ", "0");
@@ -158,15 +155,9 @@ public class lab2 {
     }
 
     public static void main(String[] args) {
-        String fname = args[0];
-        Path filePath = Paths.get(fname);
-
-        if (Files.exists(filePath)) {
-            assemble(args[0]);
-        }
-        else {
-            throw new IllegalArgumentException("No file given or file does not exist");
-        }
-        
+        // String fname = "test2.asm";
+        String fname = "C:\\Users\\rocke\\IdeaProjects\\CPE315\\lab2\\src\\test4.asm";
+        // String fname = "test1.asm";
+        assemble(fname);
     }
 }
