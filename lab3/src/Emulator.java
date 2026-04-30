@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Scanner;
+import java.util.Arrays;
 
 class Emulator {
   int pc = 0;
@@ -48,13 +49,14 @@ class Emulator {
         dumpRegState();
         break;
       case "s":
-        step();
+        // step();
         break;
       case "r":
         break;
       case "m":
         break;
       case "c":
+        clearState();
         break;
       default:
         System.out.println("LOL");
@@ -94,10 +96,16 @@ class Emulator {
     System.out.print("\n\n");
   }
 
-  void step() {
-    System.out.println("OL!");
-    Instruction inst = this.instList.get(pc); // Get instruction based on pc
+  // void step() {
+  //   System.out.println("OL!");
+  //   Instruction inst = this.instList.get(pc); // Get instruction based on pc
 
+  // }
+
+  void clearState() {
+    Arrays.fill(this.registers, 0);
+    Arrays.fill(this.dataMem, 0);
+    this.pc = 0;
   }
 
 
