@@ -13,7 +13,7 @@ public class ProgramData {
     return instList;
   }
 
-  public LabelMap labelMap() {
+  public LabelMap getLabelMap() {
     return labelMap;
   }
 }
