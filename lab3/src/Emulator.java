@@ -31,7 +31,7 @@ class Emulator {
 
   void processCommand(String command, int pc) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
-    
+
     switch (cmdTokens[0]) {
       case "h":
         displayHelp();
@@ -88,11 +88,12 @@ class Emulator {
 
   void step() {
     System.out.println("OL!");
-    List<Instruction> instList = this.progData.getInstList();
+    List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
+    LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
+
     Instruction inst = instList.get(pc); // Get instruction based on pc
 
-    String inst_name = inst.getName(); // instruction name
-    
+    String inst_name = inst.getName(); // instruction name    
     Operands ops = inst.getOperands(); // instruction operands
 
     int rd = ops.getRd();
@@ -102,6 +103,7 @@ class Emulator {
     // get values from registers
     int rs_value = registers[rs];
     int rt_value = registers[rt];
+
     switch (inst_name) {
       case "and":
         //And rs and rt values
@@ -118,7 +120,13 @@ class Emulator {
         break;
 
       case "beq":
-        // int labelAddr = labelMap.getAddr(instOperands.getLabel());
+        this.pc += 1;
+
+        if (rs_value == rt_value) {
+          int labelAddr = labelMap.getAddr(ops.getLabel());
+          int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
+          this.pc += offset;
+        }
         break;
     }
 
