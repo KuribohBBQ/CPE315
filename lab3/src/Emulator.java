@@ -23,14 +23,14 @@ class Emulator {
         break;
       }
 
-      processCommand(command, pc);
+      processCommand(command);
     }
 
     scanner.close();
 
   }
 
-  void processCommand(String command, int pc) {
+  void processCommand(String command) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
 
     switch (cmdTokens[0]) {
@@ -41,7 +41,14 @@ class Emulator {
         dumpRegState();
         break;
       case "s":
-        step();
+        if (cmdTokens.length > 1) {
+          for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
+            step();
+          }
+        }
+        else {
+          step();
+        }
         break;
       case "r":
         break;
@@ -49,6 +56,7 @@ class Emulator {
         displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
       case "c":
+        clearState();
         break;
       default:
         System.out.println("LOL");
