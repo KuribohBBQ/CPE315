@@ -129,7 +129,7 @@ class Emulator {
         this.pc += 1;
 
         if (rs_value == rt_value) {
-          int labelAddr = labelMap.getAddr(ops.getLabel());
+          labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
           this.pc += offset;
         }
@@ -138,7 +138,7 @@ class Emulator {
         this.pc += 1;
 
         if (rs_value != rt_value) {
-          int labelAddr = labelMap.getAddr(ops.getLabel());
+          labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
           this.pc += offset;
         }
