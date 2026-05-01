@@ -5,10 +5,10 @@ class Emulator {
   int pc = 0;
   int[] registers = new int[32];
   int[] dataMem = new int[8192];
-  List<Instruction> instList;
+  ProgramData progData;
 
-  public Emulator(List<Instruction> instList) {
-    this.instList = instList;
+  public Emulator(ProgramData progData) {
+    this.progData = progData;
   }
 
   void executeInteractive() {
@@ -31,14 +31,6 @@ class Emulator {
 
   void processCommand(String command, int pc) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
-
-    // If want to be strict with ensuring all commands are given as seen in lab spec
-    // if (cmdTokens.length > 1 && 
-    //   !(cmdTokens[0].equalsIgnoreCase("s") ||
-    //     cmdTokens[0].equalsIgnoreCase("m"))) {
-    //   System.out.println("Bad command");
-    // }
-
 
     switch (cmdTokens[0]) {
       case "h":
@@ -79,13 +71,13 @@ class Emulator {
     System.out.println("\npc = " + this.pc);
     for (int i = 0; i < this.registers.length; i++) {
       String regName = getRegName(i);
-      
+
       if (regName.isEmpty()) {
         continue;
       }
 
       System.out.printf("%-3s = %d\t\t", regName, this.registers[i]);
-      
+
       if ((i % numCols == 0) && (i != 0)) {
         System.out.println();
       }
@@ -96,26 +88,26 @@ class Emulator {
 
   void step() {
     System.out.println("OL!");
-    Instruction inst = this.instList.get(pc); // Get instruction based on pc
+    List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
+    LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
 
-    //instruction name
-    String inst_name = inst.getName();
-    //instruction operands
-    Operands ops = inst.getOperands();
+    Instruction inst = instList.get(pc); // Get instruction based on pc
 
-
+    String inst_name = inst.getName(); // instruction name
+    Operands ops = inst.getOperands(); // instruction operands
 
     int rd = ops.getRd();
     int rs = ops.getRt();
     int rt = ops.getRs();
 
-    //get values from registers
+    int imm = ops.getImmediate();
+    int shamt = ops.getShamt();
+
+    // get values from registers
     int rs_value = registers[rs];
     int rt_value = registers[rt];
     int ra_value = registers[31];
 
-    int imm = ops.getImmediate();
-    int shamt = ops.getShamt();
 
     int labelAddr;
     int memIdx;
@@ -179,9 +171,47 @@ class Emulator {
         }
         break;
 
+      case "beq":
+        this.pc += 1;
+
+        if (rs_value == rt_value) {
+          labelAddr = labelMap.getAddr(ops.getLabel());
+          int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
+          this.pc += offset;
+        }
+        break;
+      case "bne":
+        this.pc += 1;
+
+        if (rs_value != rt_value) {
+          labelAddr = labelMap.getAddr(ops.getLabel());
+          int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
+          this.pc += offset;
+        }
+        break;
+      case "lw":
+        memIdx = rs_value + imm; // Get memory index referenced by immediate + rs
+        registers[rt] = this.dataMem[memIdx]; // Load into register rt
+        this.pc += 1;
+        break;
+      case "sw":
+        memIdx = rs_value + imm; // Grab memory index referenced by immediate + rs
+        this.dataMem[memIdx] = registers[rt]; // Save rt into this memory location
+        this.pc += 1;
+        break;
+      case "j":
+        labelAddr = labelMap.getAddr(ops.getLabel());
+        this.pc = labelAddr;
+        break;
+      case "jr":
+        this.pc = rs_value;
+        break;
+      case "jal":
+        labelAddr = labelMap.getAddr(ops.getLabel());
+        registers[31] = this.pc + 1;
+        this.pc = labelAddr;
+        break;
     }
-
-
 
   }
 
