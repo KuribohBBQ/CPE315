@@ -100,9 +100,15 @@ class Emulator {
     int rs = ops.getRt();
     int rt = ops.getRs();
 
+    int imm = ops.getImmediate();
+
     // get values from registers
     int rs_value = registers[rs];
     int rt_value = registers[rt];
+    int ra_value = registers[31];
+
+    int labelAddr;
+    int memIdx;
 
     switch (inst_name) {
       case "and":
@@ -128,7 +134,6 @@ class Emulator {
           this.pc += offset;
         }
         break;
-
       case "bne":
         this.pc += 1;
 
@@ -138,10 +143,29 @@ class Emulator {
           this.pc += offset;
         }
         break;
+      case "lw":
+        memIdx = rs_value + imm; // Get memory index referenced by immediate + rs
+        registers[rt] = this.dataMem[memIdx]; // Load into register rt
+        this.pc += 1;
+        break;
+      case "sw":
+        memIdx = rs_value + imm; // Grab memory index referenced by immediate + rs
+        this.dataMem[memIdx] = registers[rt]; // Save rt into this memory location
+        this.pc += 1;
+        break;
+      case "j":
+        labelAddr = labelMap.getAddr(ops.getLabel());
+        this.pc = labelAddr;
+        break;
+      case "jr":
+        this.pc = rs_value;
+        break;
+      case "jal":
+        labelAddr = labelMap.getAddr(ops.getLabel());
+        registers[31] = this.pc + 1;
+        this.pc = labelAddr;
+        break;
     }
-
-
-
 
   }
 
