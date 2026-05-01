@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Scanner;
+import java.util.Arrays;
 
 class Emulator {
   int pc = 0;
@@ -219,6 +220,12 @@ class Emulator {
       System.out.printf("[%d] = %d\n", i, this.dataMem[i]);  
     }
     System.out.println();
+  }
+
+  void clearState() {
+    Arrays.fill(this.registers, 0);
+    Arrays.fill(this.dataMem, 0);
+    this.pc = 0;
   }
 
   String getRegName(int regNum) {
