@@ -5,10 +5,10 @@ class Emulator {
   int pc = 0;
   int[] registers = new int[32];
   int[] dataMem = new int[8192];
-  ProgramData progData;
+  List<Instruction> instList;
 
-  public Emulator(ProgramData progData) {
-    this.progData = progData;
+  public Emulator(List<Instruction> instList) {
+    this.instList = instList;
   }
 
   void executeInteractive() {
@@ -31,6 +31,14 @@ class Emulator {
 
   void processCommand(String command, int pc) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
+
+    // If want to be strict with ensuring all commands are given as seen in lab spec
+    // if (cmdTokens.length > 1 && 
+    //   !(cmdTokens[0].equalsIgnoreCase("s") ||
+    //     cmdTokens[0].equalsIgnoreCase("m"))) {
+    //   System.out.println("Bad command");
+    // }
+
 
     switch (cmdTokens[0]) {
       case "h":
@@ -88,24 +96,26 @@ class Emulator {
 
   void step() {
     System.out.println("OL!");
-    List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
-    LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
+    Instruction inst = this.instList.get(pc); // Get instruction based on pc
 
-    Instruction inst = instList.get(pc); // Get instruction based on pc
+    //instruction name
+    String inst_name = inst.getName();
+    //instruction operands
+    Operands ops = inst.getOperands();
 
-    String inst_name = inst.getName(); // instruction name    
-    Operands ops = inst.getOperands(); // instruction operands
+
 
     int rd = ops.getRd();
     int rs = ops.getRt();
     int rt = ops.getRs();
 
-    int imm = ops.getImmediate();
-
-    // get values from registers
+    //get values from registers
     int rs_value = registers[rs];
     int rt_value = registers[rt];
     int ra_value = registers[31];
+
+    int imm = ops.getImmediate();
+    int shamt = ops.getShamt();
 
     int labelAddr;
     int memIdx;
@@ -118,54 +128,60 @@ class Emulator {
         registers[rd] = and_value;
         //add 1 to PC counter
         this.pc += 1;
+
         break;
+
       case "add":
         int add_values =  rs_value + rt_value;
         registers[rd] = add_values;
-        
+
+        //add 1 to PC counter
+        this.pc += 1;
         break;
 
-      case "beq":
+      case "or":
+        //bitwise OR
+        int or_values = rs_value|rt_value;
+        registers[rd] = or_values;
         this.pc += 1;
+        break;
 
-        if (rs_value == rt_value) {
-          labelAddr = labelMap.getAddr(ops.getLabel());
-          int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
-          this.pc += offset;
+
+      case "addi":
+        //add immediate
+        int add_imm = imm + rs_value;
+        registers[rt] = add_imm;
+        this.pc += 1;
+        break;
+
+      case "sll":
+        //shift value in register rt by shamt
+        int shifted_val = rt_value << shamt;
+        registers[rd] = shifted_val;
+        this.pc += 1;
+        break;
+
+      case "sub":
+        //subtract value in rs by rt value then store in rd
+        int sub_val = rs_value - rt_value;
+        registers[rd] = sub_val;
+        this.pc += 1;
+        break;
+
+      case "slt":
+        this.pc += 1;
+        //check if value in rs is less than value in rt
+        if (rs_value < rt_value){
+          registers[rd] = 1;
+        }
+        else {
+          registers[rd] = 0;
         }
         break;
-      case "bne":
-        this.pc += 1;
 
-        if (rs_value != rt_value) {
-          labelAddr = labelMap.getAddr(ops.getLabel());
-          int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
-          this.pc += offset;
-        }
-        break;
-      case "lw":
-        memIdx = rs_value + imm; // Get memory index referenced by immediate + rs
-        registers[rt] = this.dataMem[memIdx]; // Load into register rt
-        this.pc += 1;
-        break;
-      case "sw":
-        memIdx = rs_value + imm; // Grab memory index referenced by immediate + rs
-        this.dataMem[memIdx] = registers[rt]; // Save rt into this memory location
-        this.pc += 1;
-        break;
-      case "j":
-        labelAddr = labelMap.getAddr(ops.getLabel());
-        this.pc = labelAddr;
-        break;
-      case "jr":
-        this.pc = rs_value;
-        break;
-      case "jal":
-        labelAddr = labelMap.getAddr(ops.getLabel());
-        registers[31] = this.pc + 1;
-        this.pc = labelAddr;
-        break;
     }
+
+
 
   }
 
