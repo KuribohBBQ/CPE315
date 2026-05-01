@@ -45,6 +45,7 @@ class Emulator {
       case "r":
         break;
       case "m":
+        displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
       case "c":
         break;
@@ -212,6 +213,13 @@ class Emulator {
 
   }
 
+  void displayMem(int num1, int num2) {
+    System.out.println();
+    for (int i = num1; i < num2 + 1; i++) {
+      System.out.printf("[%d] = %d\n", i, this.dataMem[i]);  
+    }
+    System.out.println();
+  }
 
   String getRegName(int regNum) {
     switch (regNum) {
