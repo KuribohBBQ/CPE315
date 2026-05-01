@@ -87,7 +87,6 @@ class Emulator {
   }
 
   void step() {
-    System.out.println("OL!");
     List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
     LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
 
@@ -97,8 +96,8 @@ class Emulator {
     Operands ops = inst.getOperands(); // instruction operands
 
     int rd = ops.getRd();
-    int rs = ops.getRt();
-    int rt = ops.getRs();
+    int rs = ops.getRs();
+    int rt = ops.getRt();
 
     int imm = ops.getImmediate();
     int shamt = ops.getShamt();
@@ -106,8 +105,6 @@ class Emulator {
     // get values from registers
     int rs_value = registers[rs];
     int rt_value = registers[rt];
-    int ra_value = registers[31];
-
 
     int labelAddr;
     int memIdx;
