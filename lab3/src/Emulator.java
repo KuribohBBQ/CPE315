@@ -52,7 +52,7 @@ class Emulator {
         break;
       case "r":
         //run program until pc reaches end of instruction list
-        while(this.pc >= 0 && this.pc < progData.getInstList().size())
+        while(this.pc >= 0 || this.pc < progData.getInstList().size())
         {
           step();
         }
