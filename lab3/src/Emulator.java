@@ -51,6 +51,12 @@ class Emulator {
         }
         break;
       case "r":
+        //run program until pc reaches end of instruction list
+        while(this.pc >= 0 && this.pc < progData.getInstList().size())
+        {
+          step();
+        }
+
         break;
       case "m":
         displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
