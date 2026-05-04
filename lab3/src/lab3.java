@@ -136,7 +136,7 @@ public class lab3 {
             else if (args.length == 2) {
                 ProgramData progData = assemble(args[0]);
                 Emulator emulator = new Emulator(progData);
-                // Run all function here
+                emulator.executeScript(args[1]);
             }
             else {
                 throw new IllegalArgumentException("Usage: lab3 assembly_file.asm [script_file]");

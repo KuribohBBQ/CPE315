@@ -1,6 +1,10 @@
 import java.util.List;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
+import java.io.IOException;
 
 class Emulator {
   int pc = 0;
@@ -10,6 +14,18 @@ class Emulator {
 
   public Emulator(ProgramData progData) {
     this.progData = progData;
+  }
+
+  void executeScript(String fname) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
+      String command;
+      while ((command = reader.readLine()) != null) {
+        processCommand(command);
+      }
+    }
+   catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   void executeInteractive() {
