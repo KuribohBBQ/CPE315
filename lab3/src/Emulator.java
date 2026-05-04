@@ -20,6 +20,10 @@ class Emulator {
     try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
       String command;
       while ((command = reader.readLine()) != null) {
+
+        System.out.printf("mips> %s\n", command);
+
+
         if (command.equalsIgnoreCase("q")) {
           break;
         }
