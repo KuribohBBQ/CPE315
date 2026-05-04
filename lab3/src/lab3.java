@@ -96,31 +96,6 @@ public class lab3 {
         return new ProgramData(instList, labelMap);
     }
 
-    // private static int assembleIInst(Instruction inst, LabelMap labelMap) {
-    //     // Format: op (6), rs (5), rt (5), immediate (16 - 5, 5, 6)
-    //     Operands instOperands = inst.getOperands();
-    //     if (!instOperands.getLabel().isEmpty()) {
-    //         int labelAddr = labelMap.getAddr(instOperands.getLabel());
-    //         int offset = labelAddr - (instOperands.getTarget() + 1); // relative offset calculated from pc+1
-    //         instOperands.setImmediate(offset);
-    //     }
-
-    //     int maskedImm = instOperands.getImmediate() & 0xFFFF; // mask the immediate value to 16 bits
-
-    //     return inst.getOpcode() << 26 |
-    //             instOperands.getRs() << 21 |
-    //             instOperands.getRt() << 16 |
-    //             maskedImm;
-    // }
-
-    // private static int assembleJInst(Instruction inst, LabelMap labelMap) {
-    //     // Format: op (6), address (26 - 5, 5, 5, 5, 6)
-    //     Operands instOperands = inst.getOperands();
-    //     int labelAddr = labelMap.getAddr(instOperands.getLabel());
-    //     return inst.getOpcode() << 26 |
-    //             labelAddr;
-    // }
-
     public static void main(String[] args) {
         List<Instruction> instList;
         String fname = args[0];

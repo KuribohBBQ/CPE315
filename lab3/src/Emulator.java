@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
-import java.io.IOException;
 
 class Emulator {
   int pc = 0;
@@ -20,9 +19,7 @@ class Emulator {
     try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
       String command;
       while ((command = reader.readLine()) != null) {
-
         System.out.printf("mips> %s\n", command);
-
 
         if (command.equalsIgnoreCase("q")) {
           break;
@@ -51,7 +48,6 @@ class Emulator {
     }
 
     scanner.close();
-
   }
 
   void processCommand(String command) {
@@ -90,7 +86,6 @@ class Emulator {
         displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
       case "c":
-        System.out.println("\tSimulator reset");
         clearState();
         break;
       default:
@@ -110,14 +105,13 @@ class Emulator {
   }
 
   void dumpRegState() {
-    // String format = "%-2s %3s %3s %3s%n";
     int numCols = 4;
 
     System.out.println("\npc = " + this.pc);
     for (int i = 0; i < this.registers.length; i++) {
       String regName = getRegName(i);
 
-      if (regName.isEmpty()) {
+      if (regName.isEmpty()) { // some integers don't represent a mips register; skip them
         continue;
       }
 
@@ -140,6 +134,7 @@ class Emulator {
     String inst_name = inst.getName(); // instruction name
     Operands ops = inst.getOperands(); // instruction operands
 
+    // get registers for each field
     int rd = ops.getRd();
     int rs = ops.getRs();
     int rt = ops.getRt();
@@ -254,7 +249,6 @@ class Emulator {
         this.pc = labelAddr;
         break;
     }
-
   }
 
   void displayMem(int num1, int num2) {
@@ -266,6 +260,7 @@ class Emulator {
   }
 
   void clearState() {
+    System.out.println("\tSimulator reset");
     Arrays.fill(this.registers, 0);
     Arrays.fill(this.dataMem, 0);
     this.pc = 0;
@@ -331,7 +326,4 @@ class Emulator {
         return "";
     }
   }
-
-
-
 }
