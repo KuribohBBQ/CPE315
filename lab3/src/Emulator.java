@@ -42,11 +42,15 @@ class Emulator {
         break;
       case "s":
         if (cmdTokens.length > 1) {
+          int instruction_cnt = 0;
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
+            instruction_cnt +=1;
             step();
           }
+          System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
+          System.out.println("\t1 instruction(s) executed");
           step();
         }
         break;
@@ -62,6 +66,7 @@ class Emulator {
         displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
       case "c":
+        System.out.println("\tSimulator reset");
         clearState();
         break;
       default:
