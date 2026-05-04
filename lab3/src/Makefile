@@ -1,4 +1,4 @@
-lab2:
+lab3:
 	/opt/jdk-16/bin/javac *.java
 
 clean:
