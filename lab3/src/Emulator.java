@@ -20,6 +20,10 @@ class Emulator {
     try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
       String command;
       while ((command = reader.readLine()) != null) {
+        if (command.equalsIgnoreCase("q")) {
+          break;
+        }
+
         processCommand(command);
       }
     }
@@ -81,7 +85,7 @@ class Emulator {
         clearState();
         break;
       default:
-        System.out.println("LOL");
+        break;
     }
   }
 

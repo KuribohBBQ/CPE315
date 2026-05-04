@@ -1,3 +1,5 @@
+// Group: Ryan Vu, Euclid Peregrin
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
