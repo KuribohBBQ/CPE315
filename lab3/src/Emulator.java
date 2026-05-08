@@ -65,6 +65,11 @@ class Emulator {
         dumpRegState();
         break;
       case "s":
+
+        if (this.pc >= progData.getInstList().size())
+        {
+          break;
+        }
         if (cmdTokens.length > 1) {
           int instruction_cnt = 0;
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
