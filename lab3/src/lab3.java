@@ -97,7 +97,6 @@ public class lab3 {
     }
 
     public static void main(String[] args) {
-        List<Instruction> instList;
         String fname = args[0];
         Path filePath = Paths.get(fname);
 
