@@ -104,15 +104,17 @@ public class lab4 {
             // Interactive mode
             if (args.length == 1) {
                 ProgramData progData = assemble(args[0]);
-                Emulator emulator = new Emulator(progData);
-                emulator.executeInteractive();
+                Simulator simulator = new Simulator(progData);
+                simulator.executeInteractive();
+                // Emulator emulator = new Emulator(progData);
+                // emulator.executeInteractive();
             }
             // Provide script
-            else if (args.length == 2) {
-                ProgramData progData = assemble(args[0]);
-                Emulator emulator = new Emulator(progData);
-                emulator.executeScript(args[1]);
-            }
+            // else if (args.length == 2) {
+                // ProgramData progData = assemble(args[0]);
+                // Emulator emulator = new Emulator(progData);
+                // emulator.executeScript(args[1]);
+            // }
             else {
                 throw new IllegalArgumentException("Usage: lab3 assembly_file.asm [script_file]");
             }
