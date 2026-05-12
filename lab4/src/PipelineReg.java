@@ -3,6 +3,7 @@ public class PipelineReg {
   private boolean isEmpty;
 
   public PipelineReg() {
+    this.inst = null;
     this.isEmpty = true;
   }
 
@@ -18,5 +19,12 @@ public class PipelineReg {
   public void clearReg() {
     this.inst = null;
     this.isEmpty = true;
+  }
+
+  public String getInstName() {
+    if (this.inst == null) {
+      return "empty";
+    }
+    return this.inst.getName();
   }
 }
