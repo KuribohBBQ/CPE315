@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Simulator {
@@ -56,18 +57,20 @@ public class Simulator {
         showPipelineRegs();
         break;
       case "s":
-        // if (cmdTokens.length > 1) {
-        //   int instruction_cnt = 0;
-        //   for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
-        //     instruction_cnt +=1;
-        //     step();
-        //   }
-        //   System.out.println("\t" + instruction_cnt + " instruction(s) executed");
-        // }
-        // else {
-        //   System.out.println("\t1 instruction(s) executed");
-        //   step();
-        // }
+        if (cmdTokens.length > 1) {
+          int instruction_cnt = 0;
+          for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
+            instruction_cnt +=1;
+            emu.step();
+            step();
+          }
+          System.out.println("\t" + instruction_cnt + " instruction(s) executed");
+        }
+        else {
+          System.out.println("\t1 instruction(s) executed");
+          emu.step();
+          step();
+        }
         break;
       case "r":
         break;
@@ -103,6 +106,18 @@ public class Simulator {
                                                             this.id_exe.getInstName(),
                                                             this.exe_mem.getInstName(),
                                                             this.mem_wb.getInstName());
+  }
+
+  void step() {
+    List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
+    LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
+
+    Instruction inst = instList.get(pc); // Get instruction based on pc
+
+    String inst_name = inst.getName(); // instruction name
+    Operands ops = inst.getOperands(); // instruction operands
+
+    this.if_id.setInst(inst);
   }
 
   void clearState() {
