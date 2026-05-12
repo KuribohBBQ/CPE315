@@ -49,6 +49,7 @@ public class Simulator {
         displayHelp();
         break;
       case "d":
+        emu.dumpRegState(); // use Emulator register state
         break;
       case "p":
         showPipelineRegs();
