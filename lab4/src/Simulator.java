@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Simulator {
@@ -71,8 +72,11 @@ public class Simulator {
       case "r":
         break;
       case "m":
+        emu.displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
       case "c":
+        emu.clearState();
+        clearState();
         break;
       default:
         break;
@@ -99,6 +103,15 @@ public class Simulator {
                                                             this.id_exe.getInstName(),
                                                             this.exe_mem.getInstName(),
                                                             this.mem_wb.getInstName());
+  }
+
+  void clearState() {
+    Arrays.fill(this.registers, 0);
+    this.if_id.clearReg();
+    this.id_exe.clearReg();
+    this.exe_mem.clearReg();
+    this.mem_wb.clearReg();
+    this.pc = 0;
   }
 
 }
