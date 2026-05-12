@@ -91,13 +91,10 @@ public class Simulator {
     System.out.println("q = exit the program\n");
   }
 
-  // void dumpRegisters() {
-  // }
-
   void showPipelineRegs() {
     System.out.println();
-    System.out.printf("%-2s %-5s %-6s %-7s %-6s%n", "pc", "if/id", "id/exe", "exe/mem", "mem/wb");
-    System.out.printf("%-2s %-5s %-6s %-7s %-6s%n%n", this.pc,
+    System.out.printf("%-2s\t %-5s %-6s %-7s %-6s%n", "pc", "if/id", "id/exe", "exe/mem", "mem/wb");
+    System.out.printf("%-2s\t %-5s %-6s %-7s %-6s%n%n", this.pc,
                                                             this.if_id.getInstName(),
                                                             this.id_exe.getInstName(),
                                                             this.exe_mem.getInstName(),
