@@ -16,6 +16,11 @@ public class PipelineReg {
     this.isEmpty = false;
   }
 
+  public Instruction getInst()
+  {
+    return this.inst;
+  }
+
   public void clearReg() {
     this.inst = null;
     this.isEmpty = true;

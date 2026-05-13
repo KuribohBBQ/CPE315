@@ -45,6 +45,7 @@ class Emulator {
       }
 
       processCommand(command);
+
     }
 
     scanner.close();
