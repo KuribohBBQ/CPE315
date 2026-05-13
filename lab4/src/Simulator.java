@@ -117,7 +117,57 @@ public class Simulator {
     String inst_name = inst.getName(); // instruction name
     Operands ops = inst.getOperands(); // instruction operands
 
-    this.if_id.setInst(inst);
+    //pipe instructions should have default values at start
+    Instruction mem_web_instr = this.mem_wb.getInst();
+    Instruction exe_mem_instr = this.exe_mem.getInst();
+    Instruction id_exe_instr = this.id_exe.getInst();
+    Instruction if_id_instr = this.if_id.getInst();
+
+
+    //if mem_wb pipe is empty, move instruction from exe_mem pipe to mem_wb pipe
+    if (this.mem_wb.getIsEmpty()) {
+      //if exe_mem is not empty(the previous pipe), move its instruction to mem_web, then make exe_mem pipeline empty by clearing it
+      if (!this.exe_mem.getIsEmpty()){
+
+        this.mem_wb.setInst(exe_mem_instr); //set mem_wb pipe inst field to be exe_mem inst
+
+        this.exe_mem.clearReg(); //clear exe_mem pipe
+      }
+
+    }
+    //else if mem_wb pipe is not empty. Clear it and do same stuff as above
+    else {
+      this.mem_wb.clearReg();
+      this.mem_wb.setInst(exe_mem_instr);
+      this.exe_mem.clearReg();
+    }
+
+    //if exe_mem pipe is empty, move instruction from id_exe pipe to exe_mem pipe
+    if (this.exe_mem.getIsEmpty()) {
+      //if id_exe pipe is not empty, move instruction from there to this pipe
+      if (!this.id_exe.getIsEmpty()) {
+        this.exe_mem.setInst(id_exe_instr); //move id_exe pipe inst to exe_mem pipe
+
+        this.id_exe.clearReg(); //clear id_exe pipe
+
+      }
+    }
+
+    //if id_exe pipe is empty , move instruction from if_id pipe to id_exe pipe
+    if (this.id_exe.getIsEmpty()){
+      //if if_id pipe is not empty, move instruction form there to this pipe
+      if (!this.if_id.getIsEmpty()) {
+        this.id_exe.setInst(if_id_instr);
+
+        this.if_id.clearReg();
+      }
+    }
+
+    //begin handling if_id
+    this.if_id.setInst(inst); //set if_id pipe instruction to instruction at index pc in instruction list
+    this.pc += 1; //increment pc counter by 1
+
+
   }
 
   void clearState() {
