@@ -117,6 +117,21 @@ public class Simulator {
     String inst_name = inst.getName(); // instruction name
     Operands ops = inst.getOperands(); // instruction operands
 
+    boolean stall = detectStall(id_exe, if_id);
+
+    if (stall) {
+
+      // move older stages forward
+      mem_wb.copyFrom(exe_mem);
+      exe_mem.copyFrom(id_exe);
+
+      // insert visible stall bubble into EX
+      id_exe.setStall();
+
+      // DO NOT move if_id or increment pc
+      return;
+    }
+
     //pipe instructions should have default values at start
     Instruction mem_web_instr = this.mem_wb.getInst();
     Instruction exe_mem_instr = this.exe_mem.getInst();
@@ -129,7 +144,7 @@ public class Simulator {
       //if exe_mem is not empty(the previous pipe), move its instruction to mem_web, then make exe_mem pipeline empty by clearing it
       if (!this.exe_mem.getIsEmpty()){
 
-        this.mem_wb.setInst(exe_mem_instr); //set mem_wb pipe inst field to be exe_mem inst
+        this.mem_wb.copyFrom(this.exe_mem); //set mem_wb pipe inst field to be exe_mem inst
 
         this.exe_mem.clearReg(); //clear exe_mem pipe
       }
@@ -138,7 +153,7 @@ public class Simulator {
     //else if mem_wb pipe is not empty. Clear it and do same stuff as above
     else {
       this.mem_wb.clearReg();
-      this.mem_wb.setInst(exe_mem_instr);
+      this.mem_wb.copyFrom(this.exe_mem);
       this.exe_mem.clearReg();
     }
 
@@ -146,7 +161,7 @@ public class Simulator {
     if (this.exe_mem.getIsEmpty()) {
       //if id_exe pipe is not empty, move instruction from there to this pipe
       if (!this.id_exe.getIsEmpty()) {
-        this.exe_mem.setInst(id_exe_instr); //move id_exe pipe inst to exe_mem pipe
+        this.exe_mem.copyFrom(this.id_exe); //move id_exe pipe inst to exe_mem pipe
 
         this.id_exe.clearReg(); //clear id_exe pipe
 
@@ -157,7 +172,7 @@ public class Simulator {
     if (this.id_exe.getIsEmpty()){
       //if if_id pipe is not empty, move instruction form there to this pipe
       if (!this.if_id.getIsEmpty()) {
-        this.id_exe.setInst(if_id_instr);
+        this.id_exe.copyFrom(this.if_id);
 
         this.if_id.clearReg();
       }
@@ -177,6 +192,52 @@ public class Simulator {
     this.exe_mem.clearReg();
     this.mem_wb.clearReg();
     this.pc = 0;
+  }
+
+  int getDestInst(Instruction inst){
+    if (inst == null){
+      return -1;
+    }
+    String instName = inst.getName();
+    Operands op = inst.getOperands();
+
+    //destination registers depends on instruction
+    switch (instName) {
+      //instructions that use rd as destination
+      case "add":
+      case "sub":
+      case "slt":
+      case "and":
+      case "or":
+      case "sll":
+        return op.getRd();
+
+      //these instructions use rt as destination
+      case "addi":
+      case "lw":
+        return op.getRt();
+
+      //other instructions don't need destination, so default return -1
+      default:
+        return -1;
+    }
+  }
+
+  boolean detectStall(PipelineReg id_exe, PipelineReg if_id) {
+    Instruction prev = id_exe.getInst();  // instruction in EX
+    Instruction curr = if_id.getInst();   // instruction in ID
+
+    if (prev == null || curr == null) return false;
+
+    // Only care about lw
+    if (!prev.getName().equals("lw")) return false;
+
+    int dest = prev.getOperands().getRt(); // lw writes to rt
+
+    int rs = curr.getOperands().getRs();
+    int rt = curr.getOperands().getRt();
+
+    return (dest == rs || dest == rt);
   }
 
 }
