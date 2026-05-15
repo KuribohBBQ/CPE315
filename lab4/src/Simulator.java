@@ -70,6 +70,7 @@ public class Simulator {
           System.out.println("\t1 instruction(s) executed");
           emu.step();
           step();
+          this.showPipelineRegs();
         }
         break;
       case "r":
@@ -179,8 +180,21 @@ public class Simulator {
     }
 
     //begin handling if_id
-    this.if_id.setInst(inst); //set if_id pipe instruction to instruction at index pc in instruction list
+    // if previous was j, jr, or jal
+    if (this.id_exe.getInst() != null) {
+      if (this.id_exe.getInstName().equals("jr") || this.id_exe.getInst().getType() == 'j') {
+        if (this.id_exe.getIsBranchTaken()) {
+          this.if_id.setSquash();
+          this.pc = this.emu.branchRes.getJumpAddr();
+          return;
+        }
+      }
+    }
+
+    // instruction isn't a jump or branch
+    this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken()); //set if_id pipe instruction to instruction at index pc in instruction list
     this.pc += 1; //increment pc counter by 1
+
 
 
   }
