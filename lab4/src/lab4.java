@@ -75,7 +75,7 @@ public class lab4 {
                     String badInst = line.split("\\s+")[0];
 
                     //still add it so pass 2 can stop at the right place
-                    Instruction inst = new Instruction(badInst, 0, -1, new Operands(), pc, 'u');
+                    Instruction inst = new Instruction(badInst, 0, -1, new Operands(), pc, 'u', false);
                     instList.add(inst);
 
                     pc += 1;
