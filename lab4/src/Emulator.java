@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 class Emulator {
-  int pc = 0;
+  // int pc = 0;
   int[] registers = new int[32];
   int[] dataMem = new int[8192];
   ProgramData progData;
@@ -14,7 +14,7 @@ class Emulator {
 
   public class BranchRes {
     private boolean branchTaken;
-    private int jumpAddr;
+    private int branchAddr;
     
     public BranchRes() {
       this.branchTaken = false;
@@ -28,12 +28,12 @@ class Emulator {
       return this.branchTaken;
     }
 
-    public int getJumpAddr() {
-      return this.jumpAddr;
+    public int getBranchAddr() {
+      return this.branchAddr;
     }
 
-    public void setJumpAddr(int jumpAddr) {
-      this.jumpAddr = jumpAddr;
+    public void setJumpAddr(int branchAddr) {
+      this.branchAddr = branchAddr;
     }
   }
 
@@ -41,43 +41,45 @@ class Emulator {
     this.progData = progData;
   }
 
-  void executeScript(String fname) {
-    try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
-      String command;
-      while ((command = reader.readLine()) != null) {
-        System.out.printf("mips> %s\n", command);
+  // not needed for lab 4
+  // void executeScript(String fname) {
+  //   try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
+  //     String command;
+  //     while ((command = reader.readLine()) != null) {
+  //       System.out.printf("mips> %s\n", command);
 
-        if (command.equalsIgnoreCase("q")) {
-          break;
-        }
+  //       if (command.equalsIgnoreCase("q")) {
+  //         break;
+  //       }
 
-        processCommand(command);
-      }
-    }
-   catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+  //       processCommand(command);
+  //     }
+  //   }
+  //  catch (IOException e) {
+  //     e.printStackTrace();
+  //   }
+  // }
 
-  void executeInteractive() {
-    Scanner scanner = new Scanner(System.in);
+  // not needed for lab 4
+  // void executeInteractive() {
+  //   Scanner scanner = new Scanner(System.in);
 
-    while (true) {
-      System.out.print("mips> ");
-      String command = scanner.nextLine();
+  //   while (true) {
+  //     System.out.print("mips> ");
+  //     String command = scanner.nextLine();
 
-      if (command.equalsIgnoreCase("q")) {
-        break;
-      }
+  //     if (command.equalsIgnoreCase("q")) {
+  //       break;
+  //     }
 
-      processCommand(command);
+  //     processCommand(command);
 
-    }
+  //   }
 
-    scanner.close();
-  }
+  //   scanner.close();
+  // }
 
-  void processCommand(String command) {
+  void processCommand(String command, int pc) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
 
     switch (cmdTokens[0]) {
@@ -85,30 +87,31 @@ class Emulator {
         displayHelp();
         break;
       case "d":
-        dumpRegState();
+        dumpRegState(pc);
         break;
       case "s":
         if (cmdTokens.length > 1) {
           int instruction_cnt = 0;
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
             instruction_cnt +=1;
-            step();
+            step(pc);
           }
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
           System.out.println("\t1 instruction(s) executed");
-          step();
+          step(pc);
         }
         break;
-      case "r":
-        //run program until pc reaches end of instruction list
-        while(this.pc >= 0 && this.pc < progData.getInstList().size())
-        {
-          step();
-        }
+      // not needed for lab 4
+      // case "r": 
+      //   //run program until pc reaches end of instruction list
+      //   while(this.pc >= 0 && this.pc < progData.getInstList().size())
+      //   {
+      //     step();
+      //   }
 
-        break;
+      //   break;
       case "m":
         displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
@@ -131,10 +134,10 @@ class Emulator {
     System.out.println("q = exit the program\n");
   }
 
-  void dumpRegState() {
+  void dumpRegState(int pc) {
     int numCols = 4;
 
-    System.out.println("\npc = " + this.pc);
+    System.out.println("\npc = " + pc);
     for (int i = 0; i < this.registers.length; i++) {
       String regName = getRegName(i);
 
@@ -152,7 +155,7 @@ class Emulator {
     System.out.print("\n\n");
   }
 
-  void step() {
+  void step(int pc) {
     List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
     LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
 
@@ -185,7 +188,7 @@ class Emulator {
         //put value into register
         registers[rd] = and_value;
         //add 1 to PC counter
-        this.pc += 1;
+        // this.pc += 1;
 
         break;
 
@@ -194,14 +197,14 @@ class Emulator {
         registers[rd] = add_values;
 
         //add 1 to PC counter
-        this.pc += 1;
+        // this.pc += 1;
         break;
 
       case "or":
         //bitwise OR
         int or_values = rs_value|rt_value;
         registers[rd] = or_values;
-        this.pc += 1;
+        // this.pc += 1;
         break;
 
 
@@ -209,25 +212,25 @@ class Emulator {
         //add immediate
         int add_imm = imm + rs_value;
         registers[rt] = add_imm;
-        this.pc += 1;
+        // this.pc += 1;
         break;
 
       case "sll":
         //shift value in register rt by shamt
         int shifted_val = rt_value << shamt;
         registers[rd] = shifted_val;
-        this.pc += 1;
+        // this.pc += 1;
         break;
 
       case "sub":
         //subtract value in rs by rt value then store in rd
         int sub_val = rs_value - rt_value;
         registers[rd] = sub_val;
-        this.pc += 1;
+        // this.pc += 1;
         break;
 
       case "slt":
-        this.pc += 1;
+        // this.pc += 1;
         //check if value in rs is less than value in rt
         if (rs_value < rt_value){
           registers[rd] = 1;
@@ -238,50 +241,54 @@ class Emulator {
         break;
 
       case "beq":
-        this.pc += 1;
+        // this.pc += 1;
 
         if (rs_value == rt_value) {
           labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
-          this.pc += offset;
+          this.branchRes.setBranchTaken(true); // save result of branch in branchRes for simulator use
+          this.branchRes.setJumpAddr(pc + offset + 1);
+          // this.pc += offset;
         }
         break;
       case "bne":
-        this.pc += 1;
+        // this.pc += 1;
 
         if (rs_value != rt_value) {
           labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
-          this.pc += offset;
+          this.branchRes.setBranchTaken(true); // save result of branch in branchRes for simulator use
+          this.branchRes.setJumpAddr(pc + offset + 1);
+          // this.pc += offset;
         }
         break;
       case "lw":
         memIdx = rs_value + imm; // Get memory index referenced by immediate + rs
         registers[rt] = this.dataMem[memIdx]; // Load into register rt
-        this.pc += 1;
+        // this.pc += 1;
         break;
       case "sw":
         memIdx = rs_value + imm; // Grab memory index referenced by immediate + rs
         this.dataMem[memIdx] = registers[rt]; // Save rt into this memory location
-        this.pc += 1;
+        // this.pc += 1;
         break;
       case "j":
         labelAddr = labelMap.getAddr(ops.getLabel());
-        this.branchRes.setBranchTaken(true);
+        this.branchRes.setBranchTaken(true); // save result of jump in branchRes for simulator use
         this.branchRes.setJumpAddr(labelAddr);
-        this.pc = labelAddr;
+        // this.pc = labelAddr;
         break;
       case "jr":
-        this.branchRes.setBranchTaken(true);
-        this.branchRes.setJumpAddr(rs_value);
-        this.pc = rs_value;
+        this.branchRes.setBranchTaken(true); // save result of jump in branchRes for simulator use
+        this.branchRes.setJumpAddr(rs_value); 
+        // this.pc = rs_value;
         break;
       case "jal":
         labelAddr = labelMap.getAddr(ops.getLabel());
-        registers[31] = this.pc + 1;
-        this.branchRes.setBranchTaken(true);
+        registers[31] = pc + 1;
+        this.branchRes.setBranchTaken(true); // save result of jump in branchRes for simulator use
         this.branchRes.setJumpAddr(labelAddr);
-        this.pc = labelAddr;
+        // this.pc = labelAddr;
         break;
     }
   }
@@ -298,7 +305,7 @@ class Emulator {
     System.out.println("\tSimulator reset");
     Arrays.fill(this.registers, 0);
     Arrays.fill(this.dataMem, 0);
-    this.pc = 0;
+    // this.pc = 0;
   }
 
   String getRegName(int regNum) {
