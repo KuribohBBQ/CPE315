@@ -13,8 +13,10 @@ public class Instruction
 
     private char type;
 
+    private boolean rtRead;
 
-    public Instruction(String name, int opcode, int funct, Operands operands, int addr, char type)
+
+    public Instruction(String name, int opcode, int funct, Operands operands, int addr, char type, boolean rtRead)
     {
         this.name = name;
         this.opcode = opcode;
@@ -22,6 +24,7 @@ public class Instruction
         this.operands = operands;
         this.addr = addr;
         this.type = type;
+        this.rtRead = rtRead;
     }
 
     public String getName()
@@ -53,6 +56,11 @@ public class Instruction
     public char getType()
     {
         return type;
+    }
+
+    public boolean getRtRead()
+    {
+        return rtRead;
     }
 
     public void printInst() {

@@ -52,7 +52,7 @@ public class Simulator {
         displayHelp();
         break;
       case "d":
-        emu.dumpRegState(); // use Emulator register state
+        emu.dumpRegState(this.pc); // use Emulator register state
         break;
       case "p":
         showPipelineRegs();
@@ -62,14 +62,14 @@ public class Simulator {
           int instruction_cnt = 0;
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
             instruction_cnt +=1;
-            emu.step();
+            emu.step(this.pc);
             step();
           }
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
           System.out.println("\t1 instruction(s) executed");
-          emu.step();
+          emu.step(this.pc);
           step();
         }
         break;
@@ -119,7 +119,6 @@ public class Simulator {
   void step() {
     List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
 
-
     boolean stall = detectStall(id_exe, if_id);
 
     if (stall) {
@@ -150,35 +149,53 @@ public class Simulator {
       if (this.id_exe.getInstName().equals("jr") || this.id_exe.getInst().getType() == 'j') {
         if (this.id_exe.getIsBranchTaken()) {
           this.if_id.setSquash();
-          this.pc = this.emu.branchRes.getJumpAddr();
+          this.pc = this.id_exe.getBranchAddr();
           return;
 
         }
       }
     }
 
+    // handle beq and bne
+    if (this.mem_wb.getInst() != null) {
+      if (this.mem_wb.getInstName().equals("beq") || this.mem_wb.getInstName().equals("bne")) {
+        if (this.mem_wb.getIsBranchTaken()) {
+          // squash previous 3 instructions if branch was actually taken
+          this.exe_mem.setSquash();
+          this.id_exe.setSquash();
+          this.if_id.setSquash();
+          this.pc = this.mem_wb.getBranchAddr();
+          return;
+        }
+      }
+    }
+
+    // ...
+    if (this.mem_wb.getInst() != null) {
+      if (this.mem_wb.getInstName().equals("beq") || this.mem_wb.getInstName().equals("bne")) {
+        if (this.mem_wb.getIsBranchTaken()) {
+          // squash previous 3 instructions if branch was actually taken
+          this.exe_mem.setSquash();
+          this.id_exe.setSquash();
+          this.if_id.setSquash();
+          this.pc = this.mem_wb.getBranchAddr();
+          return;
+
+        }
+      }
+    }
+
+    
+
     // IF stage: fetch only if pc is still inside instruction list
     if (pc < instList.size()) {
       Instruction inst = instList.get(pc);
-      if (this.id_exe.getInst() != null) {
-        if (this.id_exe.getInstName().equals("jr") || this.id_exe.getInst().getType() == 'j') {
-          if (this.id_exe.getIsBranchTaken()) {
-            this.if_id.setSquash();
-            this.pc = this.emu.branchRes.getJumpAddr();
-            this.numCycles++;
-            return;
-          }
-        }
-      }
       //begin handling if_id
-      // instruction isn't a jump or branch
-      this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken()); //set if_id pipe instruction to instruction at index pc in instruction list
+      this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken(), this.emu.branchRes.getBranchAddr()); //set if_id pipe instruction to instruction at index pc in instruction list
       this.pc += 1; //increment pc counter by 1
-    }
-    this.numCycles++;
-    if (!mem_wb.getIsEmpty() && !mem_wb.getIsSquash() && !mem_wb.getIsStall()) {
       this.numInst++;
     }
+    this.numCycles++;
   }
 
   void clearState() {
@@ -284,6 +301,5 @@ public class Simulator {
     return this.if_id.getIsEmpty() && this.id_exe.getIsEmpty()
             && exe_mem.getIsEmpty() && this.mem_wb.getIsEmpty();
   }
-
 
 }
