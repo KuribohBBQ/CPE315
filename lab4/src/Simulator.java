@@ -119,6 +119,7 @@ public class Simulator {
   void step() {
     List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
 
+
     boolean stall = detectStall(id_exe, if_id);
 
     if (stall) {
@@ -159,12 +160,25 @@ public class Simulator {
     // IF stage: fetch only if pc is still inside instruction list
     if (pc < instList.size()) {
       Instruction inst = instList.get(pc);
+      if (this.id_exe.getInst() != null) {
+        if (this.id_exe.getInstName().equals("jr") || this.id_exe.getInst().getType() == 'j') {
+          if (this.id_exe.getIsBranchTaken()) {
+            this.if_id.setSquash();
+            this.pc = this.emu.branchRes.getJumpAddr();
+            this.numCycles++;
+            return;
+          }
+        }
+      }
       //begin handling if_id
+      // instruction isn't a jump or branch
       this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken()); //set if_id pipe instruction to instruction at index pc in instruction list
       this.pc += 1; //increment pc counter by 1
-      this.numInst++;
     }
     this.numCycles++;
+    if (!mem_wb.getIsEmpty() && !mem_wb.getIsSquash() && !mem_wb.getIsStall()) {
+      this.numInst++;
+    }
   }
 
   void clearState() {
@@ -270,5 +284,6 @@ public class Simulator {
     return this.if_id.getIsEmpty() && this.id_exe.getIsEmpty()
             && exe_mem.getIsEmpty() && this.mem_wb.getIsEmpty();
   }
+
 
 }
