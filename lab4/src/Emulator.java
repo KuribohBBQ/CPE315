@@ -10,6 +10,32 @@ class Emulator {
   int[] registers = new int[32];
   int[] dataMem = new int[8192];
   ProgramData progData;
+  public BranchRes branchRes = new BranchRes();
+
+  public class BranchRes {
+    private boolean branchTaken;
+    private int jumpAddr;
+    
+    public BranchRes() {
+      this.branchTaken = false;
+    }
+
+    public void setBranchTaken(boolean branchStatus) {
+      this.branchTaken = branchStatus;
+    }
+
+    public boolean getBranchTaken() {
+      return this.branchTaken;
+    }
+
+    public int getJumpAddr() {
+      return this.jumpAddr;
+    }
+
+    public void setJumpAddr(int jumpAddr) {
+      this.jumpAddr = jumpAddr;
+    }
+  }
 
   public Emulator(ProgramData progData) {
     this.progData = progData;
@@ -150,6 +176,8 @@ class Emulator {
     int labelAddr;
     int memIdx;
 
+    this.branchRes.setBranchTaken(false);
+
     switch (inst_name) {
       case "and":
         //And rs and rt values
@@ -239,14 +267,20 @@ class Emulator {
         break;
       case "j":
         labelAddr = labelMap.getAddr(ops.getLabel());
+        this.branchRes.setBranchTaken(true);
+        this.branchRes.setJumpAddr(labelAddr);
         this.pc = labelAddr;
         break;
       case "jr":
+        this.branchRes.setBranchTaken(true);
+        this.branchRes.setJumpAddr(rs_value);
         this.pc = rs_value;
         break;
       case "jal":
         labelAddr = labelMap.getAddr(ops.getLabel());
         registers[31] = this.pc + 1;
+        this.branchRes.setBranchTaken(true);
+        this.branchRes.setJumpAddr(labelAddr);
         this.pc = labelAddr;
         break;
     }
@@ -327,4 +361,8 @@ class Emulator {
         return "";
     }
   }
+
+  // public boolean getBranchTaken() {
+  //   return this.branchRes.getBranchTaken();
+  // }
 }
