@@ -7,6 +7,7 @@ public class ProcessInstruction
         //default funct value since not all instructions use funct
         int funct = -1;
         char type;
+        boolean rtRead = true;
         switch (name) {
 
             //R-TYPE instructions that have funct
@@ -44,12 +45,14 @@ public class ProcessInstruction
                 opcode = 0x00;
                 funct = 0x08;
                 type = 'r';
+                rtRead = false;
                 break;
 
             //I-TYPE instructions have no funct
             case "addi":
                 opcode = 0x08;
                 type = 'i';
+                rtRead = false;
                 break;
             case "beq":
                 opcode = 0x04;
@@ -62,6 +65,7 @@ public class ProcessInstruction
             case "lw":
                 opcode = 0x23;
                 type = 'i';
+                rtRead = false;
                 break;
             case "sw":
                 opcode = 0x2B;
@@ -72,10 +76,12 @@ public class ProcessInstruction
             case "j":
                 opcode = 0x02;
                 type = 'j';
+                rtRead = false;
                 break;
             case "jal":
                 opcode = 0x03;
                 type = 'j';
+                rtRead = false;
                 break;
 
             default:
@@ -85,6 +91,6 @@ public class ProcessInstruction
 //                throw new IllegalArgumentException("Unknown instruction: " + name);
         }
 
-        return new Instruction(name, opcode, funct, operands, addr, type);
+        return new Instruction(name, opcode, funct, operands, addr, type, rtRead);
     }
 }
