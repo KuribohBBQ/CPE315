@@ -15,6 +15,7 @@ public class Simulator {
   private PipelineReg mem_wb;
 
   private int numCycles = 0;
+  private int numInst = 0;
 
   public Simulator(ProgramData progData) {
     this.emu = new Emulator(progData);
@@ -70,10 +71,16 @@ public class Simulator {
           System.out.println("\t1 instruction(s) executed");
           emu.step(this.pc);
           step();
-          this.showPipelineRegs();
         }
         break;
       case "r":
+        //run program until we reach end of instructions
+        while(pc < progData.getInstList().size() || !allPipesEmpty())
+        {
+          step();
+        }
+        //after everything is processed, print results
+        printCycleInfo();
         break;
       case "m":
         emu.displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
@@ -111,12 +118,6 @@ public class Simulator {
 
   void step() {
     List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
-    LabelMap labelMap = this.progData.getLabelMap(); // Get label map from ProgramData
-
-    Instruction inst = instList.get(pc); // Get instruction based on pc
-
-    String inst_name = inst.getName(); // instruction name
-    Operands ops = inst.getOperands(); // instruction operands
 
     boolean stall = detectStall(id_exe, if_id);
 
@@ -130,54 +131,17 @@ public class Simulator {
       id_exe.setStall();
 
       // DO NOT move if_id or increment pc
+      this.numCycles++;
       return;
     }
 
-    //pipe instructions should have default values at start
-    Instruction mem_web_instr = this.mem_wb.getInst();
-    Instruction exe_mem_instr = this.exe_mem.getInst();
-    Instruction id_exe_instr = this.id_exe.getInst();
-    Instruction if_id_instr = this.if_id.getInst();
+    // Normal pipeline movement, from back to front
+    mem_wb.copyFrom(exe_mem);
+    exe_mem.copyFrom(id_exe);
+    id_exe.copyFrom(if_id);
+    if_id.clearReg();
 
 
-    //if mem_wb pipe is empty, move instruction from exe_mem pipe to mem_wb pipe
-    if (this.mem_wb.getIsEmpty()) {
-      //if exe_mem is not empty(the previous pipe), move its instruction to mem_web, then make exe_mem pipeline empty by clearing it
-      if (!this.exe_mem.getIsEmpty()){
-
-        this.mem_wb.copyFrom(this.exe_mem); //set mem_wb pipe inst field to be exe_mem inst
-
-        this.exe_mem.clearReg(); //clear exe_mem pipe
-      }
-
-    }
-    //else if mem_wb pipe is not empty. Clear it and do same stuff as above
-    else {
-      this.mem_wb.clearReg();
-      this.mem_wb.copyFrom(this.exe_mem);
-      this.exe_mem.clearReg();
-    }
-
-    //if exe_mem pipe is empty, move instruction from id_exe pipe to exe_mem pipe
-    if (this.exe_mem.getIsEmpty()) {
-      //if id_exe pipe is not empty, move instruction from there to this pipe
-      if (!this.id_exe.getIsEmpty()) {
-        this.exe_mem.copyFrom(this.id_exe); //move id_exe pipe inst to exe_mem pipe
-
-        this.id_exe.clearReg(); //clear id_exe pipe
-
-      }
-    }
-
-    //if id_exe pipe is empty , move instruction from if_id pipe to id_exe pipe
-    if (this.id_exe.getIsEmpty()){
-      //if if_id pipe is not empty, move instruction form there to this pipe
-      if (!this.if_id.getIsEmpty()) {
-        this.id_exe.copyFrom(this.if_id);
-
-        this.if_id.clearReg();
-      }
-    }
 
     //begin handling if_id
     // if previous was j, jr, or jal
@@ -186,6 +150,21 @@ public class Simulator {
         if (this.id_exe.getIsBranchTaken()) {
           this.if_id.setSquash();
           this.pc = this.id_exe.getBranchAddr();
+          return;
+
+        }
+      }
+    }
+
+    // handle beq and bne
+    if (this.mem_wb.getInst() != null) {
+      if (this.mem_wb.getInstName().equals("beq") || this.mem_wb.getInstName().equals("bne")) {
+        if (this.mem_wb.getIsBranchTaken()) {
+          // squash previous 3 instructions if branch was actually taken
+          this.exe_mem.setSquash();
+          this.id_exe.setSquash();
+          this.if_id.setSquash();
+          this.pc = this.mem_wb.getBranchAddr();
           return;
         }
       }
@@ -201,15 +180,22 @@ public class Simulator {
           this.if_id.setSquash();
           this.pc = this.mem_wb.getBranchAddr();
           return;
+
         }
       }
     }
 
-    // instruction isn't a jump or branch
-    this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken(), this.emu.branchRes.getBranchAddr()); //set if_id pipe instruction to instruction at index pc in instruction list
-    this.pc += 1; //increment pc counter by 1
+    
 
-
+    // IF stage: fetch only if pc is still inside instruction list
+    if (pc < instList.size()) {
+      Instruction inst = instList.get(pc);
+      //begin handling if_id
+      this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken(), this.emu.branchRes.getBranchAddr()); //set if_id pipe instruction to instruction at index pc in instruction list
+      this.pc += 1; //increment pc counter by 1
+      this.numInst++;
+    }
+    this.numCycles++;
   }
 
   void clearState() {
@@ -219,6 +205,8 @@ public class Simulator {
     this.exe_mem.clearReg();
     this.mem_wb.clearReg();
     this.pc = 0;
+    this.numCycles = 0;
+    this.numInst = 0;
   }
 
   int getDestInst(Instruction inst){
@@ -251,28 +239,67 @@ public class Simulator {
   }
 
   boolean detectStall(PipelineReg id_exe, PipelineReg if_id) {
-    Instruction prev = id_exe.getInst();  // instruction in EX
-    Instruction curr = if_id.getInst();   // instruction in ID
+    Instruction prev = id_exe.getInst();  // instruction in EX, the prev instr
+    Instruction curr = if_id.getInst();   // instruction in ID, the current instr
 
     if (prev == null || curr == null) return false;
+
+
 
     // Only care about lw
     if (!prev.getName().equals("lw")) return false;
 
-    int dest = prev.getOperands().getRt(); // lw writes to rt
+    int destReg = getDestInst(prev); //get previous instruction destination register
 
-    int rs = curr.getOperands().getRs();
-    int rt = curr.getOperands().getRt();
+    if (destReg == 0) {
+      return false;
+    }
+    String currName = curr.getName();
+    Operands currOps = curr.getOperands(); //get operands of current instruction
+    //add, sub, and, or, slt, or use rd as destination register
+    switch (currName){
+      case "add":
+      case "sub":
+      case "and":
+      case "or":
+      case "slt":
 
-    if (dest == rs) {
-      return true;
+        //if current instruction's rs or rt is equal previous instruction's rd, then return true
+        return (destReg == currOps.getRs() || destReg == currOps.getRt());
+
+      //lw and addi use rt as destination register, so check if current instruction use previous instruction's destination register
+      //in rs
+      case "lw":
+      case "addi":
+        return (destReg == currOps.getRs());
+
+      case "sw":
+        return destReg == currOps.getRs() || destReg == currOps.getRt();
+
+      case "sll":
+        return destReg == currOps.getRt();
+
+      default:
+        return false;
+
     }
 
-    if (curr.getRtRead() && (dest == rt)) {
-      return true;
-    }
 
-    return false;
+  }
+
+  void printCycleInfo()
+  {
+    double CPI = (double) this.numCycles / this.numInst;
+
+    System.out.println("Program complete");
+    System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n", CPI, this.numCycles, this.numInst);
+
+  }
+
+  Boolean allPipesEmpty()
+  {
+    return this.if_id.getIsEmpty() && this.id_exe.getIsEmpty()
+            && exe_mem.getIsEmpty() && this.mem_wb.getIsEmpty();
   }
 
 }
