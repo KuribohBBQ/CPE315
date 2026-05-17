@@ -4,6 +4,7 @@ public class PipelineReg {
   private boolean isStall;
   private boolean isSquash;
   private boolean branchTaken;
+  private int branchAddr;
   // private boolean branchTaken;
 
   public PipelineReg() {
@@ -12,20 +13,19 @@ public class PipelineReg {
     this.isStall = false;
     this.isSquash = false;
     this.branchTaken = false;
+    this.branchAddr = -1;
   }
 
   public boolean getIsEmpty() {
     return this.isEmpty;
   }
 
-  public void setInst(Instruction inst, boolean branchTaken) {
+  public void setInst(Instruction inst, boolean branchTaken, int branchAddr) {
     this.inst = inst;
     this.isEmpty = false;
     this.isStall = false;
     this.branchTaken = branchTaken;
-    // if (getInstName().equals("jr") || this.inst.getType() == 'j') {
-    //   this.branchTaken = true;
-    // }
+    this.branchAddr = branchAddr;
   }
 
   public Instruction getInst()
@@ -39,6 +39,7 @@ public class PipelineReg {
     this.isStall = false;
     this.isSquash = false;
     this.branchTaken = false;
+    this.branchAddr = -1;
   }
 
 
@@ -81,9 +82,14 @@ public class PipelineReg {
     this.isStall = other.isStall;
     this.isSquash = other.isSquash;
     this.branchTaken = other.branchTaken;
+    this.branchAddr = other.branchAddr;
   }
 
   public boolean getIsBranchTaken() {
     return this.branchTaken;
+  }
+
+  public int getBranchAddr() {
+    return this.branchAddr;
   }
 }
