@@ -53,6 +53,8 @@ public class PipelineReg {
     return this.isSquash;
   }
 
+  public boolean getIsStall() {return this.isStall;}
+
   public void setSquash() {
     this.inst = null;
     this.isEmpty = false;
