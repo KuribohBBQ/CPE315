@@ -123,15 +123,14 @@ public class Simulator {
   void step() {
     List<Instruction> instList = this.progData.getInstList();
 
-    // Count completed instruction leaving WB instead of at if_id
-    if (!mem_wb.getIsEmpty()
-            && !mem_wb.getIsStall()
-            && !mem_wb.getIsSquash()
-            && !mem_wb.getInstName().equals("squash")
-            && !mem_wb.getInstName().equals("stall")
-            && !mem_wb.getInstName().equals("empty")) {
+    //count completed instruction leaving mem_web instead of at if_id
+    //instructions that are squashed, empty or stall are not counted
+    if (!mem_wb.getIsEmpty() && !mem_wb.getIsStall() && !mem_wb.getIsSquash() && !mem_wb.getInstName().equals("squash")
+            && !mem_wb.getInstName().equals("stall") && !mem_wb.getInstName().equals("empty")) {
       numInst++;
     }
+
+    //if a branch is pending to be squashed, squashed the first three pipes after moving instruction from exe_mem to mem_wb
     if (pendingBranchSquash) {
       mem_wb.copyFrom(exe_mem);
       exe_mem.setSquash();
@@ -139,7 +138,6 @@ public class Simulator {
       if_id.setSquash();
 
       pc = pendingBranchTarget;
-
       pendingBranchSquash = false;
       pendingBranchTarget = -1;
 
@@ -147,11 +145,9 @@ public class Simulator {
       return;
     }
 
-    // only execute instruction currently in EX
-    if (id_exe.getInst() != null
-            && !id_exe.getIsSquash()
-            && !id_exe.getIsStall()
-            && id_exe.getPc() >= 0) {
+    // only execute arithmetic instruction in EX by calling step method in emulator
+    //only if instruction is not squashed and is not stalled
+    if (id_exe.getInst() != null && !id_exe.getIsSquash() && !id_exe.getIsStall() && id_exe.getPc() >= 0) {
 
       emu.step(id_exe.getPc());
 
@@ -161,7 +157,7 @@ public class Simulator {
       );
     }
 
-    //Resolve beq / bne in EX stage
+    //handles beq and bne
     boolean branchTaken =
             id_exe.getInst() != null
                     && (id_exe.getInstName().equals("beq") || id_exe.getInstName().equals("bne"))
@@ -185,10 +181,13 @@ public class Simulator {
       numCycles++;
       return;
     }
+
+    //check if we need to stall
     boolean stall = detectStall(id_exe, if_id);
 
     if (stall) {
       numStalls++;
+      //move instructions from other pipes forward
       mem_wb.copyFrom(exe_mem);
       exe_mem.copyFrom(id_exe);
       id_exe.setStall();
@@ -198,10 +197,9 @@ public class Simulator {
     }
 
     // Resolve j / jal / jr in ID stage
-    if (if_id.getInst() != null
-            && !if_id.getIsSquash()
-            && !if_id.getIsStall()
-            && (if_id.getInstName().equals("jr") || if_id.getInst().getType() == 'j')) {
+    //handle instructions that use jump
+    //if true, execute jump instructions in if_id instead of id_exe
+    if (if_id.getInst() != null && !if_id.getIsSquash() && !if_id.getIsStall() && (if_id.getInstName().equals("jr") || if_id.getInst().getType() == 'j')) {
 
       emu.step(if_id.getPc());
       int target = emu.branchRes.getBranchAddr();
@@ -217,17 +215,20 @@ public class Simulator {
       return;
     }
 
-    // Normal pipeline movement
+    //move instructions from pipes to the next corresponding pipe
     mem_wb.copyFrom(exe_mem);
     exe_mem.copyFrom(id_exe);
     id_exe.copyFrom(if_id);
     if_id.clearReg();
 
-    // Fetch
+    //fetch instruction from inst list and put it in first pipe
     if (pc < instList.size()) {
+
       Instruction inst = instList.get(pc);
       if_id.setInst(inst, false, -1, pc);
       pc++;
+
+
     }
 
     numCycles++;
@@ -273,12 +274,14 @@ public class Simulator {
     }
   }
 
+  //if previous instruction was lw, and its destination register is being used as a source register in current instruction
+  //STALL
   boolean detectStall(PipelineReg id_exe, PipelineReg if_id) {
     Instruction prev = id_exe.getInst();
     Instruction curr = if_id.getInst();
 
     if (prev == null || curr == null) return false;
-    if (!prev.getName().equals("lw")) return false;
+    if (!prev.getName().equals("lw")) return false; //only care if prev inst was lw
 
     int destReg = getDestInst(prev);
     if (destReg == 0) return false;
@@ -323,8 +326,10 @@ public class Simulator {
 
     System.out.println("Program complete");
     System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n", CPI, this.numCycles, totalInst);
+//    System.out.printf("There were %d stalls", numStalls);
   }
 
+  //when r command is used, keep running until all pipes are empty
   Boolean allPipesEmpty()
   {
     return this.if_id.getIsEmpty() && this.id_exe.getIsEmpty()
