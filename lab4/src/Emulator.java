@@ -1,12 +1,7 @@
 import java.util.List;
-import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 
 class Emulator {
-  // int pc = 0;
   int[] registers = new int[32];
   int[] dataMem = new int[8192];
   ProgramData progData;
@@ -41,44 +36,6 @@ class Emulator {
     this.progData = progData;
   }
 
-  // not needed for lab 4
-  // void executeScript(String fname) {
-  //   try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
-  //     String command;
-  //     while ((command = reader.readLine()) != null) {
-  //       System.out.printf("mips> %s\n", command);
-
-  //       if (command.equalsIgnoreCase("q")) {
-  //         break;
-  //       }
-
-  //       processCommand(command);
-  //     }
-  //   }
-  //  catch (IOException e) {
-  //     e.printStackTrace();
-  //   }
-  // }
-
-  // not needed for lab 4
-  // void executeInteractive() {
-  //   Scanner scanner = new Scanner(System.in);
-
-  //   while (true) {
-  //     System.out.print("mips> ");
-  //     String command = scanner.nextLine();
-
-  //     if (command.equalsIgnoreCase("q")) {
-  //       break;
-  //     }
-
-  //     processCommand(command);
-
-  //   }
-
-  //   scanner.close();
-  // }
-
   void processCommand(String command, int pc) {
     String[] cmdTokens = command.split("\\s+"); // split to account for s and m commands
 
@@ -103,15 +60,6 @@ class Emulator {
           step(pc);
         }
         break;
-      // not needed for lab 4
-      // case "r": 
-      //   //run program until pc reaches end of instruction list
-      //   while(this.pc >= 0 && this.pc < progData.getInstList().size())
-      //   {
-      //     step();
-      //   }
-
-      //   break;
       case "m":
         displayMem(Integer.parseInt(cmdTokens[1]), Integer.parseInt(cmdTokens[2]));
         break;
@@ -183,55 +131,39 @@ class Emulator {
 
     switch (inst_name) {
       case "and":
-        //And rs and rt values
-        int and_value = rs_value & rt_value;
-        //put value into register
-        registers[rd] = and_value;
-        //add 1 to PC counter
-        // this.pc += 1;
-
+        
+        int and_value = rs_value & rt_value; // and rs and rt values
+        registers[rd] = and_value; // put value into register
         break;
 
       case "add":
         int add_values =  rs_value + rt_value;
         registers[rd] = add_values;
-
-        //add 1 to PC counter
-        // this.pc += 1;
         break;
 
       case "or":
-        //bitwise OR
-        int or_values = rs_value|rt_value;
+        int or_values = rs_value|rt_value; // bitwise OR
         registers[rd] = or_values;
-        // this.pc += 1;
         break;
 
 
       case "addi":
-        //add immediate
-        int add_imm = imm + rs_value;
+        int add_imm = imm + rs_value; // add immediate
         registers[rt] = add_imm;
-        // this.pc += 1;
         break;
 
       case "sll":
-        //shift value in register rt by shamt
-        int shifted_val = rt_value << shamt;
+        int shifted_val = rt_value << shamt; // shift value in register rt by shamt
         registers[rd] = shifted_val;
-        // this.pc += 1;
         break;
 
       case "sub":
-        //subtract value in rs by rt value then store in rd
-        int sub_val = rs_value - rt_value;
+        int sub_val = rs_value - rt_value; // subtract value in rs by rt value then store in rd
         registers[rd] = sub_val;
-        // this.pc += 1;
         break;
 
       case "slt":
-        // this.pc += 1;
-        //check if value in rs is less than value in rt
+        // check if value in rs is less than value in rt
         if (rs_value < rt_value){
           registers[rd] = 1;
         }
@@ -241,54 +173,43 @@ class Emulator {
         break;
 
       case "beq":
-        // this.pc += 1;
-
         if (rs_value == rt_value) {
           labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
           this.branchRes.setBranchTaken(true); // save result of branch in branchRes for simulator use
           this.branchRes.setJumpAddr(pc + offset + 1);
-          // this.pc += offset;
         }
         break;
       case "bne":
-        // this.pc += 1;
-
         if (rs_value != rt_value) {
           labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
           this.branchRes.setBranchTaken(true); // save result of branch in branchRes for simulator use
           this.branchRes.setJumpAddr(pc + offset + 1);
-          // this.pc += offset;
         }
         break;
       case "lw":
         memIdx = rs_value + imm; // Get memory index referenced by immediate + rs
         registers[rt] = this.dataMem[memIdx]; // Load into register rt
-        // this.pc += 1;
         break;
       case "sw":
         memIdx = rs_value + imm; // Grab memory index referenced by immediate + rs
         this.dataMem[memIdx] = registers[rt]; // Save rt into this memory location
-        // this.pc += 1;
         break;
       case "j":
         labelAddr = labelMap.getAddr(ops.getLabel());
         this.branchRes.setBranchTaken(true); // save result of jump in branchRes for simulator use
         this.branchRes.setJumpAddr(labelAddr);
-        // this.pc = labelAddr;
         break;
       case "jr":
         this.branchRes.setBranchTaken(true); // save result of jump in branchRes for simulator use
         this.branchRes.setJumpAddr(rs_value); 
-        // this.pc = rs_value;
         break;
       case "jal":
         labelAddr = labelMap.getAddr(ops.getLabel());
         registers[31] = pc + 1;
         this.branchRes.setBranchTaken(true); // save result of jump in branchRes for simulator use
         this.branchRes.setJumpAddr(labelAddr);
-        // this.pc = labelAddr;
         break;
     }
   }
@@ -305,7 +226,6 @@ class Emulator {
     System.out.println("\tSimulator reset");
     Arrays.fill(this.registers, 0);
     Arrays.fill(this.dataMem, 0);
-    // this.pc = 0;
   }
 
   String getRegName(int regNum) {
@@ -368,8 +288,4 @@ class Emulator {
         return "";
     }
   }
-
-  // public boolean getBranchTaken() {
-  //   return this.branchRes.getBranchTaken();
-  // }
 }
