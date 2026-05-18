@@ -17,6 +17,8 @@ public class Simulator {
   private int numCycles = 0;
   private int numInst = 0;
   private int numStalls = 0;
+  private boolean pendingBranchSquash = false;
+  private int pendingBranchTarget = -1;
 
   public Simulator(ProgramData progData) {
     this.emu = new Emulator(progData);
@@ -130,6 +132,20 @@ public class Simulator {
             && !mem_wb.getInstName().equals("empty")) {
       numInst++;
     }
+    if (pendingBranchSquash) {
+      mem_wb.copyFrom(exe_mem);
+      exe_mem.setSquash();
+      id_exe.setSquash();
+      if_id.setSquash();
+
+      pc = pendingBranchTarget;
+
+      pendingBranchSquash = false;
+      pendingBranchTarget = -1;
+
+      numCycles++;
+      return;
+    }
 
     // only execute instruction currently in EX
     if (id_exe.getInst() != null
@@ -152,19 +168,23 @@ public class Simulator {
                     && id_exe.getIsBranchTaken();
 
     if (branchTaken) {
-      int target = id_exe.getBranchAddr();
+      pendingBranchSquash = true;
+      pendingBranchTarget = id_exe.getBranchAddr();
 
       mem_wb.copyFrom(exe_mem);
       exe_mem.copyFrom(id_exe);
+      id_exe.copyFrom(if_id);
+      if_id.clearReg();
 
-      id_exe.setSquash();
-      if_id.setSquash();
+      if (pc < instList.size()) {
+        Instruction inst = instList.get(pc);
+        if_id.setInst(inst, false, -1, pc);
+        pc++;
+      }
 
-      pc = target;
-      numCycles += 2;
+      numCycles++;
       return;
     }
-
     boolean stall = detectStall(id_exe, if_id);
 
     if (stall) {
