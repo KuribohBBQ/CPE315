@@ -71,6 +71,7 @@ public class Simulator {
         else {
           emu.step(this.pc);
           stepOneCycle();
+          showPipelineRegs();
         }
         break;
       case "r":
