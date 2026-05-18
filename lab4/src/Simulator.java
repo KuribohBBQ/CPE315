@@ -16,6 +16,7 @@ public class Simulator {
 
   private int numCycles = 0;
   private int numInst = 0;
+  private int squashedInst = 0;
 
   public Simulator(ProgramData progData) {
     this.emu = new Emulator(progData);
@@ -63,21 +64,21 @@ public class Simulator {
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
             instruction_cnt +=1;
             emu.step(this.pc);
-            step();
+            stepOneCycle();
           }
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
           System.out.println("\t1 instruction(s) executed");
           emu.step(this.pc);
-          step();
+          stepOneCycle();
         }
         break;
       case "r":
         //run program until we reach end of instructions
         while(pc < progData.getInstList().size() || !allPipesEmpty())
         {
-          step();
+          stepOneCycle();
         }
         //after everything is processed, print results
         printCycleInfo();
@@ -118,6 +119,12 @@ public class Simulator {
 
   void step() {
     List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
+    if (!mem_wb.getIsEmpty()
+            && !mem_wb.getIsStall()
+            && !mem_wb.getIsSquash()
+            && !mem_wb.getInstName().equals("squash")) {
+      numInst++;
+    }
 
     boolean stall = detectStall(id_exe, if_id);
 
@@ -149,6 +156,8 @@ public class Simulator {
       if (this.id_exe.getInstName().equals("jr") || this.id_exe.getInst().getType() == 'j') {
         if (this.id_exe.getIsBranchTaken()) {
           this.if_id.setSquash();
+          System.out.println("Adding 1 to squashed instructions");
+          this.numCycles++;
           this.pc = this.id_exe.getBranchAddr();
           return;
 
@@ -164,28 +173,14 @@ public class Simulator {
           this.exe_mem.setSquash();
           this.id_exe.setSquash();
           this.if_id.setSquash();
+          System.out.println("Adding 3 to squashed instructions");
+          this.numCycles++;
           this.pc = this.mem_wb.getBranchAddr();
           return;
         }
       }
     }
 
-    // ...
-    if (this.mem_wb.getInst() != null) {
-      if (this.mem_wb.getInstName().equals("beq") || this.mem_wb.getInstName().equals("bne")) {
-        if (this.mem_wb.getIsBranchTaken()) {
-          // squash previous 3 instructions if branch was actually taken
-          this.exe_mem.setSquash();
-          this.id_exe.setSquash();
-          this.if_id.setSquash();
-          this.pc = this.mem_wb.getBranchAddr();
-          return;
-
-        }
-      }
-    }
-
-    
 
     // IF stage: fetch only if pc is still inside instruction list
     if (pc < instList.size()) {
@@ -193,7 +188,6 @@ public class Simulator {
       //begin handling if_id
       this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken(), this.emu.branchRes.getBranchAddr()); //set if_id pipe instruction to instruction at index pc in instruction list
       this.pc += 1; //increment pc counter by 1
-      this.numInst++;
     }
     this.numCycles++;
   }
@@ -289,10 +283,13 @@ public class Simulator {
 
   void printCycleInfo()
   {
-    double CPI = (double) this.numCycles / this.numInst;
+    int totalInst = numInst;
+    double CPI = (double) this.numCycles / totalInst;
+    System.out.printf("There are %d instructions\n", this.numInst);
+    System.out.printf("Total instruction %d\n", totalInst);
 
     System.out.println("Program complete");
-    System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n", CPI, this.numCycles, this.numInst);
+    System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n", CPI, this.numCycles, totalInst);
 
   }
 
@@ -300,6 +297,13 @@ public class Simulator {
   {
     return this.if_id.getIsEmpty() && this.id_exe.getIsEmpty()
             && exe_mem.getIsEmpty() && this.mem_wb.getIsEmpty();
+  }
+  void stepOneCycle() {
+    if (pc < progData.getInstList().size()) {
+      emu.step(this.pc);
+    }
+
+    step();
   }
 
 }
