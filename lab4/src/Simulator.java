@@ -16,7 +16,7 @@ public class Simulator {
 
   private int numCycles = 0;
   private int numInst = 0;
-  private int squashedInst = 0;
+  private int numStalls = 0;
 
   public Simulator(ProgramData progData) {
     this.emu = new Emulator(progData);
@@ -63,22 +63,23 @@ public class Simulator {
           int instruction_cnt = 0;
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
             instruction_cnt +=1;
-            emu.step(this.pc);
-            stepOneCycle();
+//            emu.step(this.pc);
+            step();
           }
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
           System.out.println("\t1 instruction(s) executed");
-          emu.step(this.pc);
-          stepOneCycle();
+          step();
+//          stepOneCycle();
         }
         break;
       case "r":
         //run program until we reach end of instructions
         while(pc < progData.getInstList().size() || !allPipesEmpty())
         {
-          stepOneCycle();
+//          System.out.println("PC at " + this.pc);
+          step();
         }
         //after everything is processed, print results
         printCycleInfo();
@@ -118,78 +119,98 @@ public class Simulator {
   }
 
   void step() {
-    List<Instruction> instList = this.progData.getInstList(); // Get instruction list from ProgramData
+    List<Instruction> instList = this.progData.getInstList();
+
+    // Count completed instruction leaving WB instead of at if_id
     if (!mem_wb.getIsEmpty()
             && !mem_wb.getIsStall()
             && !mem_wb.getIsSquash()
-            && !mem_wb.getInstName().equals("squash")) {
+            && !mem_wb.getInstName().equals("squash")
+            && !mem_wb.getInstName().equals("stall")
+            && !mem_wb.getInstName().equals("empty")) {
       numInst++;
+    }
+
+    // only execute instruction currently in EX
+    if (id_exe.getInst() != null
+            && !id_exe.getIsSquash()
+            && !id_exe.getIsStall()
+            && id_exe.getPc() >= 0) {
+
+      emu.step(id_exe.getPc());
+
+      id_exe.setBranchInfo(
+              emu.branchRes.getBranchTaken(),
+              emu.branchRes.getBranchAddr()
+      );
+    }
+
+    //Resolve beq / bne in EX stage
+    boolean branchTaken =
+            id_exe.getInst() != null
+                    && (id_exe.getInstName().equals("beq") || id_exe.getInstName().equals("bne"))
+                    && id_exe.getIsBranchTaken();
+
+    if (branchTaken) {
+      int target = id_exe.getBranchAddr();
+
+      mem_wb.copyFrom(exe_mem);
+      exe_mem.copyFrom(id_exe);
+
+      id_exe.setSquash();
+      if_id.setSquash();
+
+      pc = target;
+      numCycles += 2;
+      return;
     }
 
     boolean stall = detectStall(id_exe, if_id);
 
     if (stall) {
-
-      // move older stages forward
+      numStalls++;
       mem_wb.copyFrom(exe_mem);
       exe_mem.copyFrom(id_exe);
-
-      // insert visible stall bubble into EX
       id_exe.setStall();
 
-      // DO NOT move if_id or increment pc
-      this.numCycles++;
+      numCycles++;
       return;
     }
 
-    // Normal pipeline movement, from back to front
+    // Resolve j / jal / jr in ID stage
+    if (if_id.getInst() != null
+            && !if_id.getIsSquash()
+            && !if_id.getIsStall()
+            && (if_id.getInstName().equals("jr") || if_id.getInst().getType() == 'j')) {
+
+      emu.step(if_id.getPc());
+      int target = emu.branchRes.getBranchAddr();
+
+      mem_wb.copyFrom(exe_mem);
+      exe_mem.copyFrom(id_exe);
+      id_exe.copyFrom(if_id);
+
+      if_id.setSquash();
+
+      pc = target;
+      numCycles++;
+      return;
+    }
+
+    // Normal pipeline movement
     mem_wb.copyFrom(exe_mem);
     exe_mem.copyFrom(id_exe);
     id_exe.copyFrom(if_id);
     if_id.clearReg();
 
-
-
-    //begin handling if_id
-    // if previous was j, jr, or jal
-    if (this.id_exe.getInst() != null) {
-      if (this.id_exe.getInstName().equals("jr") || this.id_exe.getInst().getType() == 'j') {
-        if (this.id_exe.getIsBranchTaken()) {
-          this.if_id.setSquash();
-          System.out.println("Adding 1 to squashed instructions");
-          this.numCycles++;
-          this.pc = this.id_exe.getBranchAddr();
-          return;
-
-        }
-      }
-    }
-
-    // handle beq and bne
-    if (this.mem_wb.getInst() != null) {
-      if (this.mem_wb.getInstName().equals("beq") || this.mem_wb.getInstName().equals("bne")) {
-        if (this.mem_wb.getIsBranchTaken()) {
-          // squash previous 3 instructions if branch was actually taken
-          this.exe_mem.setSquash();
-          this.id_exe.setSquash();
-          this.if_id.setSquash();
-          System.out.println("Adding 3 to squashed instructions");
-          this.numCycles++;
-          this.pc = this.mem_wb.getBranchAddr();
-          return;
-        }
-      }
-    }
-
-
-    // IF stage: fetch only if pc is still inside instruction list
+    // Fetch
     if (pc < instList.size()) {
       Instruction inst = instList.get(pc);
-      //begin handling if_id
-      this.if_id.setInst(inst, this.emu.branchRes.getBranchTaken(), this.emu.branchRes.getBranchAddr()); //set if_id pipe instruction to instruction at index pc in instruction list
-      this.pc += 1; //increment pc counter by 1
+      if_id.setInst(inst, false, -1, pc);
+      pc++;
     }
-    this.numCycles++;
+
+    numCycles++;
   }
 
   void clearState() {
@@ -233,39 +254,31 @@ public class Simulator {
   }
 
   boolean detectStall(PipelineReg id_exe, PipelineReg if_id) {
-    Instruction prev = id_exe.getInst();  // instruction in EX, the prev instr
-    Instruction curr = if_id.getInst();   // instruction in ID, the current instr
+    Instruction prev = id_exe.getInst();
+    Instruction curr = if_id.getInst();
 
     if (prev == null || curr == null) return false;
-
-
-
-    // Only care about lw
     if (!prev.getName().equals("lw")) return false;
 
-    int destReg = getDestInst(prev); //get previous instruction destination register
+    int destReg = getDestInst(prev);
+    if (destReg == 0) return false;
 
-    if (destReg == 0) {
-      return false;
-    }
+    Operands currOps = curr.getOperands();
     String currName = curr.getName();
-    Operands currOps = curr.getOperands(); //get operands of current instruction
-    //add, sub, and, or, slt, or use rd as destination register
-    switch (currName){
+
+    switch (currName) {
       case "add":
       case "sub":
       case "and":
       case "or":
       case "slt":
+      case "beq":
+      case "bne":
+        return destReg == currOps.getRs() || destReg == currOps.getRt();
 
-        //if current instruction's rs or rt is equal previous instruction's rd, then return true
-        return (destReg == currOps.getRs() || destReg == currOps.getRt());
-
-      //lw and addi use rt as destination register, so check if current instruction use previous instruction's destination register
-      //in rs
-      case "lw":
       case "addi":
-        return (destReg == currOps.getRs());
+      case "lw":
+        return destReg == currOps.getRs();
 
       case "sw":
         return destReg == currOps.getRs() || destReg == currOps.getRt();
@@ -273,37 +286,29 @@ public class Simulator {
       case "sll":
         return destReg == currOps.getRt();
 
+      case "jr":
+        return destReg == currOps.getRs();
+
       default:
         return false;
-
     }
-
-
   }
 
   void printCycleInfo()
   {
     int totalInst = numInst;
     double CPI = (double) this.numCycles / totalInst;
-    System.out.printf("There are %d instructions\n", this.numInst);
-    System.out.printf("Total instruction %d\n", totalInst);
+//    System.out.printf("There are %d instructions\n", this.numInst);
+//    System.out.printf("Total instruction %d\n", totalInst);
 
     System.out.println("Program complete");
     System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n", CPI, this.numCycles, totalInst);
-
   }
 
   Boolean allPipesEmpty()
   {
     return this.if_id.getIsEmpty() && this.id_exe.getIsEmpty()
             && exe_mem.getIsEmpty() && this.mem_wb.getIsEmpty();
-  }
-  void stepOneCycle() {
-    if (pc < progData.getInstList().size()) {
-      emu.step(this.pc);
-    }
-
-    step();
   }
 
 }

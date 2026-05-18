@@ -5,6 +5,7 @@ public class PipelineReg {
   private boolean isSquash;
   private boolean branchTaken;
   private int branchAddr;
+  private int pc;
   // private boolean branchTaken;
 
   public PipelineReg() {
@@ -14,23 +15,30 @@ public class PipelineReg {
     this.isSquash = false;
     this.branchTaken = false;
     this.branchAddr = -1;
+    this.pc = -1;
   }
 
   public boolean getIsEmpty() {
     return this.isEmpty;
   }
 
-  public void setInst(Instruction inst, boolean branchTaken, int branchAddr) {
+  public void setInst(Instruction inst, boolean branchTaken, int branchAddr, int pc) {
     this.inst = inst;
     this.isEmpty = false;
     this.isStall = false;
     this.branchTaken = branchTaken;
     this.branchAddr = branchAddr;
+    this.pc = pc;
+
   }
 
   public Instruction getInst()
   {
     return this.inst;
+  }
+
+  public int getPc(){
+    return this.pc;
   }
 
   public void clearReg() {
@@ -40,6 +48,7 @@ public class PipelineReg {
     this.isSquash = false;
     this.branchTaken = false;
     this.branchAddr = -1;
+    this.pc = -1;
   }
 
 
@@ -47,6 +56,9 @@ public class PipelineReg {
     this.inst = null;
     this.isEmpty = false;
     this.isStall = true;
+    this.pc = -1;
+    this.branchTaken = false;
+    this.branchAddr = -1;
   }
 
   public boolean getIsSquash() {
@@ -59,6 +71,9 @@ public class PipelineReg {
     this.inst = null;
     this.isEmpty = false;
     this.isSquash = true;
+    this.pc = -1;
+    this.branchTaken = false;
+    this.branchAddr = -1;
   }
 
 
@@ -85,6 +100,7 @@ public class PipelineReg {
     this.isSquash = other.isSquash;
     this.branchTaken = other.branchTaken;
     this.branchAddr = other.branchAddr;
+    this.pc = other.pc;
   }
 
   public boolean getIsBranchTaken() {
@@ -93,5 +109,10 @@ public class PipelineReg {
 
   public int getBranchAddr() {
     return this.branchAddr;
+  }
+
+  public void setBranchInfo(boolean branchTaken, int branchAddr) {
+    this.branchTaken = branchTaken;
+    this.branchAddr = branchAddr;
   }
 }
