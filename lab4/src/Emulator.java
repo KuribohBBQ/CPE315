@@ -99,7 +99,7 @@ class Emulator {
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
-          System.out.println("\t1 instruction(s) executed");
+          // System.out.println("\t1 instruction(s) executed"); // not needed for lab 4
           step(pc);
         }
         break;

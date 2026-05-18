@@ -68,9 +68,9 @@ public class Simulator {
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
-          System.out.println("\t1 instruction(s) executed");
           emu.step(this.pc);
           step();
+          showPipelineRegs();
         }
         break;
       case "r":
