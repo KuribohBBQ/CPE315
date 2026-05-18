@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -28,6 +31,24 @@ public class Simulator {
     this.id_exe = new PipelineReg();
     this.exe_mem = new PipelineReg();
     this.mem_wb = new PipelineReg();
+  }
+
+  void executeScript(String fname) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
+      String command;
+      while ((command = reader.readLine()) != null) {
+        System.out.printf("mips> %s\n", command);
+
+        if (command.equalsIgnoreCase("q")) {
+          break;
+        }
+
+        processCommand(command);
+      }
+    }
+   catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   void executeInteractive() {
@@ -71,8 +92,8 @@ public class Simulator {
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
-          System.out.println("\t1 instruction(s) executed");
           step();
+          showPipelineRegs();
 //          stepOneCycle();
         }
         break;
@@ -324,8 +345,8 @@ public class Simulator {
 //    System.out.printf("There are %d instructions\n", this.numInst);
 //    System.out.printf("Total instruction %d\n", totalInst);
 
-    System.out.println("Program complete");
-    System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n", CPI, this.numCycles, totalInst);
+    System.out.println("\nProgram complete");
+    System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n\n", CPI, this.numCycles, totalInst);
 //    System.out.printf("There were %d stalls", numStalls);
   }
 
