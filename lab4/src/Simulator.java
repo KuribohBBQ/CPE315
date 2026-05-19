@@ -19,7 +19,6 @@ public class Simulator {
 
   private int numCycles = 0;
   private int numInst = 0;
-  private int numStalls = 0;
   private boolean pendingBranchSquash = false;
   private int pendingBranchTarget = -1;
 
@@ -86,7 +85,6 @@ public class Simulator {
           int instruction_cnt = 0;
           for (int i = 0; i < Integer.parseInt(cmdTokens[1]); i++) {
             instruction_cnt +=1;
-//            emu.step(this.pc);
             step();
           }
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
@@ -94,7 +92,6 @@ public class Simulator {
         else {
           step();
           showPipelineRegs();
-//          stepOneCycle();
         }
         break;
       case "r":
@@ -142,6 +139,7 @@ public class Simulator {
   }
 
   void step() {
+    numCycles++;
     List<Instruction> instList = this.progData.getInstList();
 
     //count completed instruction leaving mem_web instead of at if_id
@@ -162,7 +160,6 @@ public class Simulator {
       pendingBranchSquash = false;
       pendingBranchTarget = -1;
 
-      numCycles++;
       return;
     }
 
@@ -184,6 +181,7 @@ public class Simulator {
                     && (id_exe.getInstName().equals("beq") || id_exe.getInstName().equals("bne"))
                     && id_exe.getIsBranchTaken();
 
+    // if branch was actually taken, then need to squash prev 3 instructions
     if (branchTaken) {
       pendingBranchSquash = true;
       pendingBranchTarget = id_exe.getBranchAddr();
@@ -199,7 +197,6 @@ public class Simulator {
         pc++;
       }
 
-      numCycles++;
       return;
     }
 
@@ -207,13 +204,11 @@ public class Simulator {
     boolean stall = detectStall(id_exe, if_id);
 
     if (stall) {
-      numStalls++;
       //move instructions from other pipes forward
       mem_wb.copyFrom(exe_mem);
       exe_mem.copyFrom(id_exe);
       id_exe.setStall();
 
-      numCycles++;
       return;
     }
 
@@ -232,7 +227,6 @@ public class Simulator {
       if_id.setSquash();
 
       pc = target;
-      numCycles++;
       return;
     }
 
@@ -244,15 +238,10 @@ public class Simulator {
 
     //fetch instruction from inst list and put it in first pipe
     if (pc < instList.size()) {
-
       Instruction inst = instList.get(pc);
       if_id.setInst(inst, false, -1, pc);
       pc++;
-
-
     }
-
-    numCycles++;
   }
 
   void clearState() {
@@ -342,12 +331,8 @@ public class Simulator {
   {
     int totalInst = numInst;
     double CPI = (double) this.numCycles / totalInst;
-//    System.out.printf("There are %d instructions\n", this.numInst);
-//    System.out.printf("Total instruction %d\n", totalInst);
-
     System.out.println("\nProgram complete");
     System.out.printf("CPI = %.3f\t Cycles = %d\t Instructions = %d\n\n", CPI, this.numCycles, totalInst);
-//    System.out.printf("There were %d stalls", numStalls);
   }
 
   //when r command is used, keep running until all pipes are empty
