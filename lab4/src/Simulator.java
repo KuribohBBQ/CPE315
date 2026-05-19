@@ -153,6 +153,8 @@ public class Simulator {
     //if a branch is pending to be squashed, squashed the first three pipes after moving instruction from exe_mem to mem_wb
     if (pendingBranchSquash) {
       mem_wb.copyFrom(exe_mem);
+
+      //squash instructions in pipe
       exe_mem.setSquash();
       id_exe.setSquash();
       if_id.setSquash();
