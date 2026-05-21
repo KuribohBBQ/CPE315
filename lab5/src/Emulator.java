@@ -61,8 +61,19 @@ class Emulator {
         displayHelp();
         break;
       case "b":
-        this.bp.printGHR();
         this.bp.printPredAcc();
+        break;
+      case "g": // temp for debugging
+        this.bp.printGHR();
+        break;
+      // case "ug": // temp for debugging
+      //   this.bp.updateGHR(Integer.parseInt(cmdTokens[1]));
+      //   break;
+      // case "up":
+        // this.bp.updatePred(Integer.parseInt(cmdTokens[1]));
+        // break;
+      case "p": // temp for debugging
+        this.bp.printPred();
         break;
       case "d":
         dumpRegState();
@@ -225,19 +236,35 @@ class Emulator {
         this.pc += 1;
 
         if (rs_value == rt_value) {
+          this.bp.updatePred(true); // get the prediction based on the GHR and update it
+          this.bp.updateGHR(true); // update GHR; actual is taken
+
           labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
           this.pc += offset;
         }
+        else {
+          this.bp.updatePred(false); // get the prediction based on the GHR and update it
+          this.bp.updateGHR(false); // update GHR; actual is not taken
+        }
+
         break;
       case "bne":
         this.pc += 1;
 
         if (rs_value != rt_value) {
+          this.bp.updatePred(true); // get the prediction based on the GHR and update it
+          this.bp.updateGHR(true); // update GHR; actual is taken
+
           labelAddr = labelMap.getAddr(ops.getLabel());
           int offset = labelAddr - (ops.getTarget() + 1); // relative offset calculated from pc+1
           this.pc += offset;
         }
+        else {
+          this.bp.updatePred(false); // get the prediction based on the GHR and update it
+          this.bp.updateGHR(false); // update GHR; actual is not taken
+        }
+
         break;
       case "lw":
         memIdx = rs_value + imm; // Get memory index referenced by immediate + rs
