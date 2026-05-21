@@ -4,9 +4,9 @@ public class BranchPredictor {
   private int totalPreds = 0;
   private int correctPreds = 0;
 
-  public BranchPredictor(int ghr) {
-    this.ghr = ghr;
-    predictor = new int[(int) Math.pow(2, ghr)];
+  public BranchPredictor(int ghrSize) {
+    this.ghr = ghrSize;
+    predictor = new int[(int) Math.pow(2, ghrSize)];
   }
 
   public void printGHR() {
