@@ -91,7 +91,12 @@ public class Simulator {
           System.out.println("\t" + instruction_cnt + " instruction(s) executed");
         }
         else {
+<<<<<<< HEAD
           step();
+=======
+          emu.step(this.pc);
+          stepOneCycle();
+>>>>>>> main
           showPipelineRegs();
         }
         break;
