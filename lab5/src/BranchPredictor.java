@@ -8,11 +8,12 @@ public class BranchPredictor {
   public BranchPredictor(int ghrSize) {
     this.ghr = 0;
     this.ghrSize = ghrSize;
-    predictor = new int[(int) Math.pow(2, ghrSize)];
+    this.predictor = new int[(int) Math.pow(2, ghrSize)];
   }
 
   public void updateGHR(int actualPred) {
     this.ghr = (this.ghr << 1) | actualPred;
+    this.ghr &= (int) (Math.pow(2, this.ghrSize) - 1); // clear all non-ghr bits
   }
 
   public void printGHR() {
@@ -37,6 +38,18 @@ public class BranchPredictor {
 
   public int getCorrectPreds() {
     return this.correctPreds;
+  }
+
+  public int getPred() {
+    return this.predictor[this.ghr];
+  }
+
+  public void printPred() {
+    System.out.printf("Predictor at GHR (%d): %d\n\n", this.ghr, getPred());
+  }
+
+  public void updatePred(int newVal) {
+    this.predictor[this.ghr] = newVal;
   }
 
   public void incTotalPreds() {
