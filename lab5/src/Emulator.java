@@ -11,8 +11,11 @@ class Emulator {
   int[] dataMem = new int[8192];
   ProgramData progData;
 
-  public Emulator(ProgramData progData) {
+  BranchPredictor bp;
+
+  public Emulator(ProgramData progData, int ghrSize) {
     this.progData = progData;
+    this.bp = new BranchPredictor(ghrSize);
   }
 
   void executeScript(String fname) {
@@ -57,6 +60,10 @@ class Emulator {
       case "h":
         displayHelp();
         break;
+      case "b":
+        this.bp.printGHR();
+        this.bp.printPredAcc();
+        break;
       case "d":
         dumpRegState();
         break;
@@ -100,6 +107,7 @@ class Emulator {
 
   void displayHelp() {
     System.out.println("\nh = show help");
+    System.out.println("b = output the branch predictor accuracy");
     System.out.println("d = dump register state");
     System.out.println("s = single step through the program (i.e. execute 1 instruction and stop)");
     System.out.println("s num = step through num instructions of the program");
