@@ -104,13 +104,13 @@ public class lab5 {
             // Interactive mode
             if (args.length == 1) {
                 ProgramData progData = assemble(args[0]);
-                Emulator emulator = new Emulator(progData);
+                Emulator emulator = new Emulator(progData, 2);
                 emulator.executeInteractive();
             }
             // Provide script
             else if (args.length == 2) {
                 ProgramData progData = assemble(args[0]);
-                Emulator emulator = new Emulator(progData);
+                Emulator emulator = new Emulator(progData, 2);
                 emulator.executeScript(args[1]);
             }
             else {
