@@ -19,7 +19,8 @@ public class Simulator {
 
   private int numCycles = 0;
   private int numInst = 0;
-  private boolean pendingBranchSquash = false;
+
+  private boolean pendingBranchSquash = false; //flag for detecting if there are instructions in pipes pending to be squashed
   private int pendingBranchTarget = -1;
 
   public Simulator(ProgramData progData) {
@@ -152,12 +153,14 @@ public class Simulator {
     //if a branch is pending to be squashed, squashed the first three pipes after moving instruction from exe_mem to mem_wb
     if (pendingBranchSquash) {
       mem_wb.copyFrom(exe_mem);
+
+      //squash instructions in pipe
       exe_mem.setSquash();
       id_exe.setSquash();
       if_id.setSquash();
 
-      pc = pendingBranchTarget;
-      pendingBranchSquash = false;
+      pc = pendingBranchTarget; //make pc the value of branch target
+      pendingBranchSquash = false; //since we finished squashing, reset flag back to false
       pendingBranchTarget = -1;
 
       return;
