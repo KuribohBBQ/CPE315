@@ -12,9 +12,16 @@ public class BranchPredictor {
   public void printGHR() {
     for (int i = ghr - 1; i >= 0; i--) {
       int bit = ghr & (1 << i);
-      System.out.printf("%d bit  ");
+      System.out.printf("%-3d", bit);
     }
+
     System.out.println();
+    
+    for (int i = ghr - 1; i >= 0; i--) {
+      System.out.printf("%-3d", i);
+    }
+
+    System.out.printf("\n\n");
   }
 
   public int getTotalPreds() {
@@ -33,13 +40,17 @@ public class BranchPredictor {
     this.correctPreds++;
   }
 
-  public long calcPredAcc() {
-    long acc = (long) this.correctPreds / this.totalPreds;
+  public double calcPredAcc() {
+    if (this.totalPreds == 0) {
+      return 0;
+    }
+    
+    double acc = (double) this.correctPreds / this.totalPreds;
     return acc;
   }
 
   public void printPredAcc() {
-    long acc = calcPredAcc();
-    System.out.printf("%.2f", acc);
+    double acc = calcPredAcc();
+    System.out.printf("accuracy %.2f%% (%d correct predictions, %d predictions)\n\n", acc * 100, this.correctPreds, this.totalPreds);
   }
 }
