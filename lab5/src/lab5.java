@@ -113,6 +113,16 @@ public class lab5 {
                 Emulator emulator = new Emulator(progData, 2);
                 emulator.executeScript(args[1]);
             }
+
+            //3rd optional argument which is size of ghr
+            else if (args.length == 3) {
+                //convert args[2] into an int for ghr
+                int ghrVal = Integer.parseInt(args[2]);
+                ProgramData progData = assemble(args[0]);
+                Emulator emulator = new Emulator(progData, ghrVal);
+                emulator.executeScript(args[1]);
+            }
+
             else {
                 throw new IllegalArgumentException("Usage: lab3 assembly_file.asm [script_file]");
             }
