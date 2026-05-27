@@ -63,18 +63,18 @@ class Emulator {
       case "b":
         this.bp.printPredAcc();
         break;
-      case "g": // temp for debugging
-        this.bp.printGHR();
-        break;
+      // case "g": // temp for debugging
+      //   this.bp.printGHR();
+      //   break;
       // case "ug": // temp for debugging
       //   this.bp.updateGHR(Integer.parseInt(cmdTokens[1]));
       //   break;
       // case "up":
         // this.bp.updatePred(Integer.parseInt(cmdTokens[1]));
         // break;
-      case "p": // temp for debugging
-        this.bp.printPred();
-        break;
+      // case "p": // temp for debugging
+      //   this.bp.printPred();
+      //   break;
       case "d":
         dumpRegState();
         break;
