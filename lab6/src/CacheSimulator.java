@@ -15,18 +15,18 @@ public class CacheSimulator {
   public static final int WORD_SIZE = 4;
 
   public CacheSimulator(int cacheSize, int numWays, int blocksPerSet) {
-    this.byteOffset = (int) (Math.log(blocksPerSet * WORD_SIZE) / Math.log(2));
-    this.indexSize = (int) (Math.log(cacheSize / WORD_SIZE) / Math.log(2));
-    this.tagSize = ADDR_SIZE - this.indexSize - this.byteOffset;
-    
-    this.numRows = (int) Math.pow(2, indexSize);
+    this.numRows = (int) ((cacheSize / (blocksPerSet * WORD_SIZE)) / numWays);
     this.numWays = numWays;
+    
+    this.byteOffset = (int) (Math.log(blocksPerSet * WORD_SIZE) / Math.log(2));
+    this.indexSize = (int) (Math.log(this.numRows) / Math.log(2));
+    this.tagSize = ADDR_SIZE - this.indexSize - this.byteOffset;
 
     this.hits = 0;
     this.misses = 0;
 
-    this.cache = new CacheLine[numRows][numWays]; 
-    for (int i = 0; i < numRows; i++) {
+    this.cache = new CacheLine[this.numRows][numWays]; 
+    for (int i = 0; i < this.numRows; i++) {
       for (int j = 0; j < numWays; j++) {
         this.cache[i][j] = new CacheLine();
       }
