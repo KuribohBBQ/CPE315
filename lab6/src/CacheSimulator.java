@@ -70,20 +70,32 @@ public class CacheSimulator {
         else if (this.byteOffsetSize == 4) {
           wordOffset = BIT_THREE_FOUR & byteOffset; // extract the two bits used for the word offset
         }
-        
+
         for (int i = 0; i < this.numWays; i++) {
           // stuff 
           hit = this.cache[index][i].checkHit(tag);
           if (hit) {
             this.hits++;
+            break;
           }
         }
         
+        // if miss, fill any way in that index
+        if (!hit) {
+          if (this.numWays == 1) {
+            this.cache[index][0].setTag(tag);
+          }
+          // for (int i = 0; i < this.numWays; i++) { 
+          //   if (this.cache[index][i].getIsEmpty()) {
+          //     this.cache[index][i].setTag(tag);
+          //     break;
+          //   }
+          // }
+        }
+
         this.total++;
         hit = false;
 
-
-        break;
       }
     }
    catch (IOException e) {
@@ -91,6 +103,7 @@ public class CacheSimulator {
     }
 
     printHitRate();
+    System.out.printf("Total: %d\n", this.total);
 
   }
 

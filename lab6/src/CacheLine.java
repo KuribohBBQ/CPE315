@@ -2,20 +2,28 @@
 // So an array of these makes up a cache.
 public class CacheLine {
   private int tag;
-  private boolean isOccupied;
+  private boolean isEmpty;
 
   public CacheLine() {
     this.tag = -1; // initialize to default value
-    this.isOccupied = false;
+    this.isEmpty = true;
   }
 
   public int getTag() {
     return this.tag;
   }
 
+  public void setTag(int tag) {
+    this.tag = tag;
+    this.isEmpty = false;
+  }
+
+  public boolean getIsEmpty() {
+    return this.isEmpty;
+  }
+
   boolean checkHit(int tag) {
-    if (this.tag == tag) {
-      // addToCache()
+    if (this.isEmpty == false && this.tag == tag) {
       return true;
     }
 
