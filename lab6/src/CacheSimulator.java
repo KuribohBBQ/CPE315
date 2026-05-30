@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 public class CacheSimulator {
   CacheLine cache[][];
+  private long counter;
 
   private int tagSize;
   private int indexSize;
@@ -29,6 +30,7 @@ public class CacheSimulator {
 
     this.hits = 0;
     this.total = 0;
+    this.counter = 0;
 
     this.cache = new CacheLine[this.numRows][numWays]; 
     for (int i = 0; i < this.numRows; i++) {
@@ -52,11 +54,17 @@ public class CacheSimulator {
     int byteOffsetMask = (1 << this.byteOffsetSize) - 1; // creates a mask of byteOffset 1's
     int wordOffset = 0;
 
-    
     try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
       String line;
       while ((line = reader.readLine()) != null) {
+        this.counter++;
+
+        long lruTime = 0;
+        int lruWay = 0;
+
         boolean hit = false;
+        boolean emptyInsert = false;
+
         long addr = Long.parseLong(line.split("\\s+")[1], 16); // use long bc int is 32 bit SIGNED
 
         int tag = (int) ((addr >> (32 - this.tagSize)) & tagMask); // extract tag
@@ -75,6 +83,7 @@ public class CacheSimulator {
           // stuff 
           hit = this.cache[index][i].checkHit(tag);
           if (hit) {
+            this.cache[index][i].setAccessTime(this.counter);
             this.hits++;
             break;
           }
@@ -85,12 +94,36 @@ public class CacheSimulator {
           if (this.numWays == 1) {
             this.cache[index][0].setTag(tag);
           }
-          // for (int i = 0; i < this.numWays; i++) { 
-          //   if (this.cache[index][i].getIsEmpty()) {
-          //     this.cache[index][i].setTag(tag);
-          //     break;
-          //   }
-          // }
+          else {
+            for (int i = 0; i < this.numWays; i++) { 
+              // find 
+              if (i == 0) {
+                lruTime = this.cache[index][i].getAccessTime();
+                lruWay = 0;
+              }
+              else {
+                // current way is oldest
+                if (this.cache[index][i].getAccessTime() < lruTime) {
+                  lruTime = this.cache[index][i].getAccessTime();
+                  lruWay = i;
+                } 
+              }
+
+              // don't need to replace LRU if there's an empty spot
+              if (this.cache[index][i].getIsEmpty()) {
+                this.cache[index][i].setTag(tag);
+                this.cache[index][i].setAccessTime(this.counter);
+                emptyInsert = true;
+                break;
+              }
+            }
+
+            // otherwise overwrite LRU with new address
+            if (!emptyInsert) {
+              this.cache[index][lruWay].setTag(tag);
+              this.cache[index][lruWay].setAccessTime(this.counter); 
+            }
+          }
         }
 
         this.total++;
@@ -103,8 +136,6 @@ public class CacheSimulator {
     }
 
     printHitRate();
-    System.out.printf("Total: %d\n", this.total);
-
   }
 
   public int getHits() {
