@@ -2,15 +2,24 @@
 // So an array of these makes up a cache.
 public class CacheLine {
   private int tag;
-  private boolean dirtyBit; // used for associativity
+  private boolean isOccupied;
 
   public CacheLine() {
     this.tag = -1; // initialize to default value
-    this.dirtyBit = false;
+    this.isOccupied = false;
   }
 
   public int getTag() {
     return this.tag;
+  }
+
+  boolean checkHit(int tag) {
+    if (this.tag == tag) {
+      // addToCache()
+      return true;
+    }
+
+    return false;
   }
 
 }
