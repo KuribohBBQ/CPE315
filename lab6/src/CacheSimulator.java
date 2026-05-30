@@ -17,8 +17,6 @@ public class CacheSimulator {
 
   public static final int ADDR_SIZE = 32;
   public static final int WORD_SIZE = 4;
-  public static final int BIT_THREE = 4;
-  public static final int BIT_THREE_FOUR = 12;
 
   public CacheSimulator(int cacheSize, int numWays, int blocksPerSet) {
     this.numRows = (int) ((cacheSize / (blocksPerSet * WORD_SIZE)) / numWays);
@@ -43,8 +41,6 @@ public class CacheSimulator {
   void runSim(String fname) {
     int tagMask = (1 << this.tagSize) - 1; // creates a mask of tagSize 1's
     int indexMask = (1 << this.indexSize) - 1; // creates a mask of indexSize 1's
-    int byteOffsetMask = (1 << this.byteOffsetSize) - 1; // creates a mask of byteOffset 1's
-    int wordOffset = 0;
 
     try (BufferedReader reader = new BufferedReader(new FileReader(fname))) {
       String line;
@@ -61,15 +57,6 @@ public class CacheSimulator {
 
         int tag = (int) ((addr >> (32 - this.tagSize)) & tagMask); // extract tag
         int index = (int) ((addr >> this.byteOffsetSize) & indexMask); // extract index
-        int byteOffset = (int) (addr & byteOffsetMask); // extract byte offset
-        
-        // in the case where there is more than 1-word blocks, the upper bit(s) are used as a word offset
-        if (this.byteOffsetSize == 3) {
-          wordOffset = BIT_THREE & byteOffset; // extract the single bit used for the word offset
-        }
-        else if (this.byteOffsetSize == 4) {
-          wordOffset = BIT_THREE_FOUR & byteOffset; // extract the two bits used for the word offset
-        }
 
         for (int i = 0; i < this.numWays; i++) {
           // stuff 
