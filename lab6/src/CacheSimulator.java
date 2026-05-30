@@ -38,14 +38,6 @@ public class CacheSimulator {
         this.cache[i][j] = new CacheLine();
       }
     }
-
-    // debugging
-    System.out.printf("tagSize = %d\n", this.tagSize);
-    System.out.printf("indexSize = %d\n", this.indexSize);
-    System.out.printf("byteOffset = %d\n", this.byteOffsetSize);
-
-    System.out.printf("numRows = %d\n", this.numRows);
-    System.out.printf("numWays = %d\n", this.numWays);
   }
 
   void runSim(String fname) {
